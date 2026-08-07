@@ -1,0 +1,1 @@
+Bonn trajectory data contain ORB-SLAM3 results (`orbslam3.txt`). No Bonn ORB-SLAM2 trajectory is available in the current Bonn run directory, so ORB-SLAM3 is not relabeled as ORB-SLAM2.

@@ -1,0 +1,18 @@
+\begin{table*}[htbp]
+\centering
+\caption{表1(b) TUM RGB-D数据集不同方法的RPE比较}
+\caption*{Tab.1(b) Comparison of RPE for different methods on the TUM RGB-D dataset}
+\label{tab:tum_rpe}
+\begin{tabular}{lcccccc}
+\toprule
+Method & fr1\_xyz & fr1\_desk & fr3\_xyz & fr3\_rpy & fr3\_halfsphere & fr3\_static \\
+\midrule
+ORB-SLAM2 & 0.0055 & 0.0095 & 0.0442 & 0.0823 & 0.0406 & 0.0513 \\
+ORB-SLAM3 & 0.0061 & 0.0096 & 0.0252 & 0.0308 & 0.0219 & 0.0211 \\
+DS-SLAM & \textbf{0.0054} & \textbf{0.0086} & \textbf{0.0147} & \textbf{0.0212} & \textbf{0.0134} & \textbf{0.0049} \\
+DynaSLAM & 0.0081 & 0.0092 & 0.0373 & 0.0228 & 0.0166 & 0.0102 \\
+Hard Remove & \textbf{0.0054} & 0.0091 & 0.0476 & 0.1201 & 0.0322 & 0.0216 \\
+Ours & 0.0056 & 0.0089 & 0.0560 & 0.0779 & 0.0315 & 0.0245 \\
+\bottomrule
+\end{tabular}
+\end{table*}

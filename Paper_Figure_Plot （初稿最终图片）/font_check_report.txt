@@ -1,0 +1,59 @@
+Font Check Report for Fig2-Fig6
+
+1. Times New Roman detection
+- fc-match "Times New Roman": times.ttf: "Times New Roman" "Regular"
+- Windows font files copied from /mnt/c/Windows/Fonts to ~/.fonts and font cache refreshed.
+
+2. Figure font summary
+- Fig2: Times New Roman. EPS FontName = TimesNewRomanPS-BoldMT, TimesNewRomanPSMT
+- Fig3: Times New Roman. EPS FontName = TimesNewRomanPSMT
+- Fig4: Times New Roman. EPS FontName = TimesNewRomanPSMT
+- Fig5: Times New Roman for text; STIXGeneral-Italic for math lambda. EPS FontName = STIXGeneral-Italic, TimesNewRomanPS-BoldMT, TimesNewRomanPSMT
+- Fig6: Times New Roman. EPS FontName = TimesNewRomanPS-BoldMT, TimesNewRomanPSMT
+
+3. Unified font size settings
+- Axis labels: 10.5 pt
+- Tick labels: 9 pt
+- Legends: 9 pt
+- Subfigure titles: 10 pt
+- Data labels: 8 pt; Fig4 bar labels: 8.5 pt
+- Math text: STIX
+
+4. EPS forbidden FontName check
+- Fig2.eps: PASS; no Liberation/DejaVu/Helvetica forbidden font names found.
+- Fig3.eps: PASS; no Liberation/DejaVu/Helvetica forbidden font names found.
+- Fig4.eps: PASS; no Liberation/DejaVu/Helvetica forbidden font names found.
+- Fig5.eps: PASS; no Liberation/DejaVu/Helvetica forbidden font names found.
+- Fig6.eps: PASS; no Liberation/DejaVu/Helvetica forbidden font names found.
+
+5. Output files
+- /home/djn/123/ORB_SLAM2_AddSemantic/Paper_Figure_Plot/output/Fig2.eps: OK (254428 bytes)
+- /home/djn/123/ORB_SLAM2_AddSemantic/Paper_Figure_Plot/output/Fig2.pdf: OK (102847 bytes)
+- /home/djn/123/ORB_SLAM2_AddSemantic/Paper_Figure_Plot/output/Fig2.png: OK (364067 bytes)
+- /home/djn/123/ORB_SLAM2_AddSemantic/Paper_Figure_Plot/output/Fig2.emf: OK (254368 bytes)
+- /home/djn/123/ORB_SLAM2_AddSemantic/Paper_Figure_Plot/output/Fig3.eps: OK (86653 bytes)
+- /home/djn/123/ORB_SLAM2_AddSemantic/Paper_Figure_Plot/output/Fig3.pdf: OK (32761 bytes)
+- /home/djn/123/ORB_SLAM2_AddSemantic/Paper_Figure_Plot/output/Fig3.png: OK (213537 bytes)
+- /home/djn/123/ORB_SLAM2_AddSemantic/Paper_Figure_Plot/output/Fig3.emf: OK (158772 bytes)
+- /home/djn/123/ORB_SLAM2_AddSemantic/Paper_Figure_Plot/output/Fig4.eps: OK (79498 bytes)
+- /home/djn/123/ORB_SLAM2_AddSemantic/Paper_Figure_Plot/output/Fig4.pdf: OK (29607 bytes)
+- /home/djn/123/ORB_SLAM2_AddSemantic/Paper_Figure_Plot/output/Fig4.png: OK (135840 bytes)
+- /home/djn/123/ORB_SLAM2_AddSemantic/Paper_Figure_Plot/output/Fig4.emf: OK (139828 bytes)
+- /home/djn/123/ORB_SLAM2_AddSemantic/Paper_Figure_Plot/output/Fig5.eps: OK (151898 bytes)
+- /home/djn/123/ORB_SLAM2_AddSemantic/Paper_Figure_Plot/output/Fig5.pdf: OK (56031 bytes)
+- /home/djn/123/ORB_SLAM2_AddSemantic/Paper_Figure_Plot/output/Fig5.png: OK (495357 bytes)
+- /home/djn/123/ORB_SLAM2_AddSemantic/Paper_Figure_Plot/output/Fig5.emf: OK (389888 bytes)
+- /home/djn/123/ORB_SLAM2_AddSemantic/Paper_Figure_Plot/output/Fig6.eps: OK (184918 bytes)
+- /home/djn/123/ORB_SLAM2_AddSemantic/Paper_Figure_Plot/output/Fig6.pdf: OK (60976 bytes)
+- /home/djn/123/ORB_SLAM2_AddSemantic/Paper_Figure_Plot/output/Fig6.png: OK (697181 bytes)
+- /home/djn/123/ORB_SLAM2_AddSemantic/Paper_Figure_Plot/output/Fig6.emf: OK (739036 bytes)
+
+6. Modified plotting files
+- scripts/plot_style.py
+- scripts/plot_fig2.py
+- scripts/plot_fig4.py
+- scripts/plot_fig6.py
+
+7. Scope statement
+- Only font family, font sizes, math text rendering, and EMF export handling were changed.
+- No experimental data, curve values, bar values, colors, line styles, markers, line widths, coordinate limits, layout, dpi, or file names were changed.

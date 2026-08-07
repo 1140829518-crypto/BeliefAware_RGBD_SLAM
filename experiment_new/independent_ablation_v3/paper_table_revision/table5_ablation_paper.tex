@@ -1,0 +1,20 @@
+\begin{table}[htbp]
+\centering
+\caption{Independent ablation results on TUM RGB-D dynamic sequences.}
+\label{tab:independent_ablation_paper}
+\begin{tabular}{lccccc}
+\toprule
+Variant & ATE (m) & RPE (m) & FPS (frame/s) & Pose Missing Ratio & Switching Frequency \\
+\midrule
+Baseline & 0.8485 ± 0.2689 & 0.0588 ± 0.0304 & \textbf{14.0979 ± 3.1163} & \textbf{0.2234 ± 0.1872} & — \\
+Semantic Mask & 0.5701 ± 0.2328 & 0.0558 ± 0.0341 & 13.3753 ± 1.0619 & 0.3211 ± 0.3044 & 0.0367 ± 0.0253 \\
+Temporal Consistency & \textbf{0.2424 ± 0.2317} & 0.0296 ± 0.0105 & 13.0124 ± 0.8745 & 0.4211 ± 0.4176 & 0.0259 ± 0.0201 \\
+Object-level Semantic Map & 0.5620 ± 0.2708 & 0.0598 ± 0.0432 & 11.8681 ± 1.1552 & 0.2312 ± 0.1625 & 0.0388 ± 0.0165 \\
+Full Model & 0.2660 ± 0.2902 & \textbf{0.0244 ± 0.0074} & 12.4740 ± 1.5840 & 0.4615 ± 0.4045 & \textbf{0.0216 ± 0.0217} \\
+\bottomrule
+\end{tabular}
+\vspace{0.5ex}
+\begin{minipage}{0.98\linewidth}
+\small 表中结果为3个TUM动态序列、每个序列独立运行3次所得结果的均值±标准差。ATE和RPE越低越好，FPS越高越好，位姿缺失率和动态状态切换频率越低越好。Baseline不输出动态目标状态，因此不参与动态状态切换频率的比较。位姿缺失率表示未输出有效相机位姿的帧数占输入图像总帧数的比例，不等同于严格意义上的系统失败率。
+\end{minipage}
+\end{table}

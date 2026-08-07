@@ -1,0 +1,1 @@
+Fig7 contains available visualization assets from the current project. The current result directories provide RGB/depth frames and dynamic point filtering images. Standalone per-frame YOLO detection-box images and semantic mask images were not found; therefore available paper/result visualizations are copied into detection_result/ and mask/ with this note.

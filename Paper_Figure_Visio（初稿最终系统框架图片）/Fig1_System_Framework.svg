@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1670" height="470" viewBox="0 0 1670 470">
+<defs>
+<marker id="arrowBlack" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto"><polygon points="0 0, 9 3.5, 0 7" fill="#222222"/></marker>
+<marker id="arrowOrange" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto"><polygon points="0 0, 9 3.5, 0 7" fill="#ED7D31"/></marker>
+<marker id="arrowGreen" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto"><polygon points="0 0, 9 3.5, 0 7" fill="#70AD47"/></marker>
+</defs>
+<rect x="0" y="0" width="100%" height="100%" fill="#ffffff"/>
+<line x1="201.6" y1="201.1" x2="244.8" y2="197.8" stroke="#222222" stroke-width="1.4" marker-end="url(#arrowBlack)"/>
+<line x1="494.4" y1="197.8" x2="539.5" y2="187.7" stroke="#222222" stroke-width="1.4" marker-end="url(#arrowBlack)"/>
+<line x1="806.4" y1="187.7" x2="859.2" y2="200.6" stroke="#222222" stroke-width="1.4" marker-end="url(#arrowBlack)"/>
+<line x1="1104.0" y1="200.6" x2="1161.6" y2="198.7" stroke="#222222" stroke-width="1.4" marker-end="url(#arrowBlack)"/>
+<line x1="1266.2" y1="266.9" x2="1271.0" y2="284.2" stroke="#222222" stroke-width="1.4" marker-end="url(#arrowBlack)"/>
+<line x1="1401.6" y1="361.9" x2="1457.3" y2="222.7" stroke="#222222" stroke-width="1.4" marker-end="url(#arrowBlack)"/>
+<line x1="201.6" y1="201.1" x2="244.8" y2="367.7" stroke="#ED7D31" stroke-width="1.4" stroke-dasharray="6 4" marker-end="url(#arrowOrange)"/>
+<line x1="494.4" y1="367.7" x2="549.1" y2="371.5" stroke="#ED7D31" stroke-width="1.4" stroke-dasharray="6 4" marker-end="url(#arrowOrange)"/>
+<line x1="652.3" y1="324.5" x2="673.0" y2="286.1" stroke="#ED7D31" stroke-width="1.4" stroke-dasharray="6 4" marker-end="url(#arrowOrange)"/>
+<path d="M747.7,79.7 C792.7,37.7 606.6,37.7 651.6,79.7" fill="none" stroke="#70AD47" stroke-width="1.4" stroke-dasharray="6 4" marker-end="url(#arrowGreen)"/>
+<text x="673.0" y="33.7" text-anchor="middle" font-family="Times New Roman, Liberation Serif, serif" font-size="9" fill="#70AD47">Temporal Consistency</text>
+<rect x="33.6" y="150.7" width="168.0" height="100.8" rx="4" ry="4" fill="#DDEAF7" stroke="#4F81BD" stroke-width="1.2"/>
+<text x="117.6" y="228.5" text-anchor="middle" font-family="Times New Roman, Liberation Serif, serif" font-size="12" font-weight="700" fill="#111111">RGB-D Input</text>
+<text x="117.6" y="249.5" text-anchor="middle" font-family="Times New Roman, Liberation Serif, serif" font-size="9.5" fill="#111111">RGB Image</text>
+<text x="117.6" y="266.5" text-anchor="middle" font-family="Times New Roman, Liberation Serif, serif" font-size="9.5" fill="#111111">Depth Image</text>
+<rect x="244.8" y="131.5" width="249.6" height="132.5" rx="4" ry="4" fill="#DDEAF7" stroke="#4F81BD" stroke-width="1.2"/>
+<text x="369.6" y="241.0" text-anchor="middle" font-family="Times New Roman, Liberation Serif, serif" font-size="12" font-weight="700" fill="#111111">ORB-SLAM2 RGB-D</text>
+<text x="369.6" y="258.0" text-anchor="middle" font-family="Times New Roman, Liberation Serif, serif" font-size="12" font-weight="700" fill="#111111">Frontend</text>
+<text x="369.6" y="279.0" text-anchor="middle" font-family="Times New Roman, Liberation Serif, serif" font-size="9.5" fill="#111111">Feature Extraction</text>
+<text x="369.6" y="296.0" text-anchor="middle" font-family="Times New Roman, Liberation Serif, serif" font-size="9.5" fill="#111111">Feature Matching</text>
+<text x="369.6" y="313.0" text-anchor="middle" font-family="Times New Roman, Liberation Serif, serif" font-size="9.5" fill="#111111">Pose Tracking</text>
+<rect x="244.8" y="299.5" width="249.6" height="136.3" rx="4" ry="4" fill="#FCE4D6" stroke="#ED7D31" stroke-width="1.2"/>
+<text x="369.6" y="412.8" text-anchor="middle" font-family="Times New Roman, Liberation Serif, serif" font-size="12" font-weight="700" fill="#111111">YOLOv5 Semantic</text>
+<text x="369.6" y="429.8" text-anchor="middle" font-family="Times New Roman, Liberation Serif, serif" font-size="12" font-weight="700" fill="#111111">Detection</text>
+<text x="369.6" y="450.8" text-anchor="middle" font-family="Times New Roman, Liberation Serif, serif" font-size="9.5" fill="#111111">Object Category</text>
+<text x="369.6" y="467.8" text-anchor="middle" font-family="Times New Roman, Liberation Serif, serif" font-size="9.5" fill="#111111">Confidence</text>
+<text x="369.6" y="484.8" text-anchor="middle" font-family="Times New Roman, Liberation Serif, serif" font-size="9.5" fill="#111111">Semantic Mask</text>
+<rect x="549.1" y="324.5" width="206.4" height="94.1" rx="4" ry="4" fill="#FCE4D6" stroke="#ED7D31" stroke-width="1.2"/>
+<text x="652.3" y="395.5" text-anchor="middle" font-family="Times New Roman, Liberation Serif, serif" font-size="12" font-weight="700" fill="#111111">Semantic Observation</text>
+<text x="652.3" y="416.5" text-anchor="middle" font-family="Times New Roman, Liberation Serif, serif" font-size="9.5" fill="#111111">Category and mask</text>
+<text x="652.3" y="433.5" text-anchor="middle" font-family="Times New Roman, Liberation Serif, serif" font-size="9.5" fill="#111111">confidence observation</text>
+<rect x="539.5" y="89.3" width="266.9" height="196.8" rx="4" ry="4" fill="#E2F0D9" stroke="#70AD47" stroke-width="1.8"/>
+<text x="673.0" y="263.0" text-anchor="middle" font-family="Times New Roman, Liberation Serif, serif" font-size="12" font-weight="700" fill="#111111">Temporal Dynamic Evidence</text>
+<text x="673.0" y="280.0" text-anchor="middle" font-family="Times New Roman, Liberation Serif, serif" font-size="12" font-weight="700" fill="#111111">Model</text>
+<text x="673.0" y="301.0" text-anchor="middle" font-family="Times New Roman, Liberation Serif, serif" font-size="9.5" fill="#111111">Dynamic Evidence Score</text>
+<text x="673.0" y="318.0" text-anchor="middle" font-family="Times New Roman, Liberation Serif, serif" font-size="9.5" fill="#111111">λ Decay</text>
+<text x="673.0" y="335.0" text-anchor="middle" font-family="Times New Roman, Liberation Serif, serif" font-size="9.5" fill="#111111">γ Increment</text>
+<text x="673.0" y="352.0" text-anchor="middle" font-family="Times New Roman, Liberation Serif, serif" font-size="9.5" fill="#111111">θ Threshold</text>
+<text x="673.0" y="369.0" text-anchor="middle" font-family="Times New Roman, Liberation Serif, serif" font-size="9.5" fill="#111111">Dynamic State Decision</text>
+<rect x="859.2" y="115.2" width="244.8" height="170.9" rx="4" ry="4" fill="#E2F0D9" stroke="#70AD47" stroke-width="1.2"/>
+<text x="981.6" y="263.0" text-anchor="middle" font-family="Times New Roman, Liberation Serif, serif" font-size="12" font-weight="700" fill="#111111">Dynamic Point</text>
+<text x="981.6" y="280.0" text-anchor="middle" font-family="Times New Roman, Liberation Serif, serif" font-size="12" font-weight="700" fill="#111111">Suppression</text>
+<text x="981.6" y="301.0" text-anchor="middle" font-family="Times New Roman, Liberation Serif, serif" font-size="9.5" fill="#111111">Dynamic Point Removal</text>
+<text x="981.6" y="318.0" text-anchor="middle" font-family="Times New Roman, Liberation Serif, serif" font-size="9.5" fill="#111111">Feature Filtering</text>
+<text x="981.6" y="335.0" text-anchor="middle" font-family="Times New Roman, Liberation Serif, serif" font-size="9.5" fill="#111111">Matching Constraint</text>
+<text x="981.6" y="352.0" text-anchor="middle" font-family="Times New Roman, Liberation Serif, serif" font-size="9.5" fill="#111111">Tracking Constraint</text>
+<rect x="1161.6" y="130.6" width="209.3" height="136.3" rx="4" ry="4" fill="#EDEDED" stroke="#7F7F7F" stroke-width="1.2"/>
+<text x="1266.2" y="243.8" text-anchor="middle" font-family="Times New Roman, Liberation Serif, serif" font-size="12" font-weight="700" fill="#111111">Backend</text>
+<text x="1266.2" y="260.8" text-anchor="middle" font-family="Times New Roman, Liberation Serif, serif" font-size="12" font-weight="700" fill="#111111">Optimization</text>
+<text x="1266.2" y="281.8" text-anchor="middle" font-family="Times New Roman, Liberation Serif, serif" font-size="9.5" fill="#111111">Local Mapping</text>
+<text x="1266.2" y="298.8" text-anchor="middle" font-family="Times New Roman, Liberation Serif, serif" font-size="9.5" fill="#111111">Loop Closing</text>
+<text x="1266.2" y="315.8" text-anchor="middle" font-family="Times New Roman, Liberation Serif, serif" font-size="9.5" fill="#111111">Graph Optimization</text>
+<rect x="1140.5" y="284.2" width="261.1" height="155.5" rx="4" ry="4" fill="#EADCF8" stroke="#8064A2" stroke-width="1.2"/>
+<text x="1271.0" y="416.6" text-anchor="middle" font-family="Times New Roman, Liberation Serif, serif" font-size="12" font-weight="700" fill="#111111">Object-level</text>
+<text x="1271.0" y="433.6" text-anchor="middle" font-family="Times New Roman, Liberation Serif, serif" font-size="12" font-weight="700" fill="#111111">Semantic Map</text>
+<text x="1271.0" y="454.6" text-anchor="middle" font-family="Times New Roman, Liberation Serif, serif" font-size="9.5" fill="#111111">Object Category</text>
+<text x="1271.0" y="471.6" text-anchor="middle" font-family="Times New Roman, Liberation Serif, serif" font-size="9.5" fill="#111111">3D Position</text>
+<text x="1271.0" y="488.6" text-anchor="middle" font-family="Times New Roman, Liberation Serif, serif" font-size="9.5" fill="#111111">Object Observation Association</text>
+<text x="1271.0" y="505.6" text-anchor="middle" font-family="Times New Roman, Liberation Serif, serif" font-size="9.5" fill="#111111">Dynamic State</text>
+<rect x="1457.3" y="140.2" width="182.4" height="165.1" rx="4" ry="4" fill="#EDEDED" stroke="#7F7F7F" stroke-width="1.2"/>
+<text x="1548.5" y="282.2" text-anchor="middle" font-family="Times New Roman, Liberation Serif, serif" font-size="12" font-weight="700" fill="#111111">Final Outputs</text>
+<text x="1548.5" y="303.2" text-anchor="middle" font-family="Times New Roman, Liberation Serif, serif" font-size="9.5" fill="#111111">Camera Trajectory</text>
+<text x="1548.5" y="320.2" text-anchor="middle" font-family="Times New Roman, Liberation Serif, serif" font-size="9.5" fill="#111111">Static/Dynamic Map Points</text>
+<text x="1548.5" y="337.2" text-anchor="middle" font-family="Times New Roman, Liberation Serif, serif" font-size="9.5" fill="#111111">Object-level Semantic</text>
+<text x="1548.5" y="354.2" text-anchor="middle" font-family="Times New Roman, Liberation Serif, serif" font-size="9.5" fill="#111111">Information</text>
+</svg>

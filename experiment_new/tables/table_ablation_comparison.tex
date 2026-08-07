@@ -1,0 +1,16 @@
+\begin{table}[t]
+\centering
+\caption{Strengthened ablation comparison.}
+\label{tab:ablation_comparison}
+\begin{tabular}{lrrrr}
+\toprule
+Variant & ATE & RPE & FPS & Failure Rate \\
+\midrule
+Baseline & 0.431422 & 0.025970 & -- & 0.042905 \\
+A: Baseline+Semantic Mask & 0.442878 & 0.066651 & 13.335857 & 0.342543 \\
+B: Baseline+Temporal Consistency & 0.656059 & 0.127939 & 14.370664 & 0.319212 \\
+C: Baseline+Object-level Semantic Map & 0.442878 & 0.066651 & 12.535705 & 0.342543 \\
+D: Full Model & 0.439188 & 0.055154 & 14.982892 & 0.351681 \\
+\bottomrule
+\end{tabular}
+\end{table}

@@ -1,0 +1,18 @@
+\begin{table*}[htbp]
+\centering
+\caption{表1(a) TUM RGB-D数据集不同方法的ATE比较}
+\caption*{Tab.1(a) Comparison of ATE for different methods on the TUM RGB-D dataset}
+\label{tab:tum_ate}
+\begin{tabular}{lcccccc}
+\toprule
+Method & fr1\_xyz & fr1\_desk & fr3\_xyz & fr3\_rpy & fr3\_halfsphere & fr3\_static \\
+\midrule
+ORB-SLAM2 & \textbf{0.0092} & 0.0193 & 0.6671 & 0.9465 & 0.4733 & 0.3185 \\
+ORB-SLAM3 & 0.0105 & 0.0162 & 0.3430 & 0.6898 & 0.2614 & 0.1616 \\
+DS-SLAM & 0.0093 & \textbf{0.0144} & \textbf{0.0885} & 0.6995 & 0.0346 & \textbf{0.0088} \\
+DynaSLAM & 0.0106 & 0.0156 & 0.1850 & \textbf{0.0431} & \textbf{0.0313} & 0.0098 \\
+Hard Remove & \textbf{0.0092} & 0.0159 & 0.3993 & 0.7265 & 0.2028 & 0.0637 \\
+Ours & 0.0094 & 0.0161 & 0.3318 & 0.7721 & 0.2137 & 0.0565 \\
+\bottomrule
+\end{tabular}
+\end{table*}

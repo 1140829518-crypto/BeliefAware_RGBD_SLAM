@@ -1,0 +1,12 @@
+论文题目：基于时间一致性建模的鲁棒语义动态 RGB-D SLAM 方法
+
+图1系统框架图不需要Matplotlib数值数据。
+图中应包含以下处理模块：
+1. RGB-D Input：输入RGB图像与深度图像。
+2. ORB-SLAM2 RGB-D Frontend：特征提取、特征匹配、位姿跟踪。
+3. YOLOv5 Semantic Detection：目标类别、检测置信度、语义观测。
+4. Temporal Dynamic Evidence Model：动态证据分数、lambda衰减、gamma增量、theta阈值。
+5. Dynamic Point Suppression：根据动态证据抑制动态点参与跟踪与优化。
+6. Backend Optimization：局部建图、回环检测、图优化。
+7. Object-level Semantic Map：对象类别、三维位置、ID关联、动态状态。
+8. Final Outputs：相机轨迹、特征地图、动态目标信息、语义地图。

@@ -1,0 +1,7 @@
+﻿sequence,semantic_objects,static_group_objects,low_dynamic_group_objects,person_objects,avg_object_observations,max_object_observations,frames,avg_dynamic_keypoints,max_dynamic_keypoints,avg_dynamic_map_points,max_dynamic_map_points,avg_suppressed_map_points,max_suppressed_map_points,avg_dynamic_objects,max_dynamic_objects,avg_static_objects,max_static_objects
+fr1_desk,24,15,9,0,53.04166667,338,1171,0.177625961,104,0.000853971,1,0.000853971,1,0.001707942,1,1.561912895,5
+fr1_xyz,8,3,5,0,267,1708,1586,10.07566204,142,0.017654477,4,0.017654477,4,0.220680958,1,1.595208071,6
+fr3_walking_halfsphere,14,6,8,0,191.0714286,840,1065,236.1004695,724,0,0,0.036619718,11,0.99342723,2,2.744600939,6
+fr3_walking_rpy,31,17,14,0,73.96774194,373,1205,250.0381743,785,0,0,0.080497925,32,1.121161826,2,2.068879668,6
+fr3_walking_static,12,5,7,0,397.0833333,1430,1353,249.1515152,769,0,0,0.050258684,42,1.402808574,2,3.693274205,6
+fr3_walking_xyz,22,12,10,0,168.1818182,968,1341,233.9463087,668,0,0,0.003728561,3,1.021625652,3,2.835197614,5

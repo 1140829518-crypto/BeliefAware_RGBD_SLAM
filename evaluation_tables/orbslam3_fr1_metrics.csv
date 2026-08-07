@@ -1,0 +1,3 @@
+sequence,method,matches,ate_rmse,rpe_trans_rmse,rpe_rot_rmse_deg,mean_tracking_time,median_tracking_time,trajectory
+fr1_xyz,ORB-SLAM3,792,0.010462415,0.006091007,0.400967965,0.0314293,0.028544,orbslam3_runs_missing/fr1_xyz/CameraTrajectory.txt
+fr1_desk,ORB-SLAM3,586,0.016204771,0.009583221,0.597503914,0.0322354,0.0302543,orbslam3_runs_missing/fr1_desk/CameraTrajectory.txt

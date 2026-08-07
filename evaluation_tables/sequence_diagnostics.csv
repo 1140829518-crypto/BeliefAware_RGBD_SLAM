@@ -1,0 +1,37 @@
+﻿method,sequence,input_frames,keyframes,mean_tracking_time_ms,avg_dynamic_points,semantic_objects,trajectory_completeness_percent,run_dir
+ORB-SLAM2,fr1_xyz,794,36,51.4874,0.0,,99.74811083123426,standard_runs/fr1_xyz/orb_slam2
+ORB-SLAM2,fr1_desk,586,77,61.5674,0.0,,100.0,standard_runs/fr1_desk/orb_slam2
+ORB-SLAM2,fr3_xyz,827,160,103.867,0.0,,50.78597339782346,standard_runs/fr3_walking_xyz/orb_slam2
+ORB-SLAM2,fr3_rpy,866,327,100.911,0.0,,98.72979214780601,standard_runs/fr3_walking_rpy/orb_slam2
+ORB-SLAM2,fr3_halfsphere,1021,346,113.568,0.0,,76.39569049951028,standard_runs/fr3_walking_halfsphere/orb_slam2
+ORB-SLAM2,fr3_static,717,104,105.083,0.0,,82.28730822873082,standard_runs/fr3_walking_static/orb_slam2
+ORB-SLAM3,fr1_xyz,794,52,31.4293,,,99.74811083123426,orbslam3_runs_missing/fr1_xyz
+ORB-SLAM3,fr1_desk,586,95,32.2354,,,100.0,orbslam3_runs_missing/fr1_desk
+ORB-SLAM3,fr3_xyz,827,384,66.9834,,,99.87908101571946,orbslam3_runs_missing/fr3_walking_xyz
+ORB-SLAM3,fr3_rpy,866,418,52.597199999999994,,,99.7690531177829,orbslam3_runs_missing/fr3_walking_rpy
+ORB-SLAM3,fr3_halfsphere,1021,392,70.60379999999999,,,99.70617042115573,orbslam3_runs_missing/fr3_walking_halfsphere
+ORB-SLAM3,fr3_static,717,81,49.823600000000006,,,98.32635983263599,orbslam3_runs_missing/fr3_walking_static
+DS-SLAM,fr1_xyz,794,63,3474.2730083729984,,,99.74811083123426,baseline_runs_missing/ds_slam/fr1_xyz
+DS-SLAM,fr1_desk,586,162,3274.276303080112,,,100.0,baseline_runs_missing/ds_slam/fr1_desk
+DS-SLAM,fr3_xyz,827,81,3329.37138138948,,,99.87908101571946,baseline_runs_missing/ds_slam/fr3_walking_xyz
+DS-SLAM,fr3_rpy,866,213,3269.373489958119,,,99.7690531177829,baseline_runs_missing/ds_slam/fr3_walking_rpy
+DS-SLAM,fr3_halfsphere,1021,98,5139.168688073017,,,99.70617042115573,baseline_runs_missing/ds_slam/fr3_walking_halfsphere
+DS-SLAM,fr3_static,717,23,4466.798288322896,,,98.32635983263599,baseline_runs_missing/ds_slam/fr3_walking_static
+Dyna-SLAM,fr1_xyz,794,64,654.2969644546631,,,99.49622166246851,baseline_runs_missing/dyna_slam/fr1_xyz
+Dyna-SLAM,fr1_desk,586,104,681.757,,,96.07508532423208,baseline_runs_retry3_patched/dyna_slam/fr1_desk
+Dyna-SLAM,fr3_xyz,827,,,,,,baseline_runs_missing/dyna_slam/fr3_walking_xyz
+Dyna-SLAM,fr3_rpy,866,74,1028.1507680286236,,,56.351039260969976,baseline_runs_missing/dyna_slam/fr3_walking_rpy
+Dyna-SLAM,fr3_halfsphere,1021,,,,,,baseline_runs_missing/dyna_slam/fr3_walking_halfsphere
+Dyna-SLAM,fr3_static,717,63,3245.709982830194,,,67.08507670850767,baseline_runs_missing/dyna_slam/fr3_walking_static
+Hard Remove,fr1_xyz,794,41,53.1464,10.093316519546027,,99.74811083123426,standard_runs/fr1_xyz/hard_remove
+Hard Remove,fr1_desk,586,76,77.9001,0.1794871794871795,,100.0,standard_runs/fr1_desk/hard_remove
+Hard Remove,fr3_xyz,827,262,103.02600000000001,263.8316326530612,,94.6795646916566,standard_runs/fr3_walking_xyz/hard_remove
+Hard Remove,fr3_rpy,866,150,73.0791,251.15028901734104,,59.122401847575055,standard_runs/fr3_walking_rpy/hard_remove
+Hard Remove,fr3_halfsphere,1021,78,60.1776,231.24105461393597,,51.420176297747304,standard_runs/fr3_walking_halfsphere/hard_remove
+Hard Remove,fr3_static,717,159,312.358,249.39736070381232,,93.44490934449094,standard_runs/fr3_walking_static/hard_remove
+Ours,fr1_xyz,794,41,78.73769999999999,10.075662042875157,8,99.74811083123426,standard_runs/fr1_xyz/full_method
+Ours,fr1_desk,586,85,341.611,0.17777777777777778,24,100.0,standard_runs/fr1_desk/full_method
+Ours,fr3_xyz,827,186,74.21079999999999,233.91964285714286,22,80.89480048367594,standard_runs/fr3_walking_xyz/full_method
+Ours,fr3_rpy,866,280,62.868300000000005,249.96859504132232,31,69.39953810623557,standard_runs/fr3_walking_rpy/full_method
+Ours,fr3_halfsphere,1021,84,64.23729999999999,233.84103512014786,14,52.203721841332026,standard_runs/fr3_walking_halfsphere/full_method
+Ours,fr3_static,717,181,266.67999999999995,249.12407680945347,12,92.74755927475593,standard_runs/fr3_walking_static/full_method

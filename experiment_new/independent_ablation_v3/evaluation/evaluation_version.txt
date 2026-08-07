@@ -1,0 +1,5 @@
+Evaluation script: /home/djn/123/ORB_SLAM2_AddSemantic/experiment_new/independent_ablation_v3/evaluation/scripts/evaluate_tum_metrics.py
+SHA256: cfdd35d556afcd5d080fe109396f5ffa7da1810a5e2c26a656c648216db24b13
+Alignment: SE(3) rigid alignment of estimated positions to ground truth.
+Timestamp association tolerance: 0.02 s.
+RPE delta: adjacent associated poses.

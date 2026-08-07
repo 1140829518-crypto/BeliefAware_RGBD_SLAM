@@ -1,0 +1,92 @@
+\section{实验}
+
+为验证本文所提出的基于时间一致性建模的鲁棒语义动态 RGB-D SLAM 方法的有效性，本章在公开 RGB-D 数据集上进行了实验评估。实验重点关注动态场景下的轨迹精度、局部运动稳定性、动态目标判别一致性以及系统运行效率。需要说明的是，本文方法的目标不是单纯追求每一项误差指标最低，而是在存在动态目标、遮挡和语义检测不稳定的情况下，提高动态目标处理的一致性，减少由误检和漏检导致的轨迹突变，从而提升动态环境下的整体鲁棒性。
+
+\subsection{数据集和评价指标}
+
+本文实验使用 TUM RGB-D 数据集和 Bonn RGB-D Dynamic Dataset。TUM RGB-D 数据集包含多种室内 RGB-D 序列，其中 \texttt{fr3\_walking\_xyz}、\texttt{fr3\_walking\_rpy} 等序列存在明显人体运动，适合评估动态目标对 SLAM 跟踪与建图的影响。Bonn RGB-D Dynamic Dataset 进一步提供了具有人员移动、同步运动和群体运动干扰的动态场景，可用于验证方法在不同动态模式下的泛化能力。
+
+评价指标包括 ATE RMSE、RPE translation RMSE、FPS、Precision、Recall、F1-score、Smoothness 和 Failure Rate。TUM ATE/RPE 对比见表~\ref{tab:tum_ate_rpe}。
+
+\input{tables/Table1_TUM_ATE_RPE}
+
+\subsection{TUM RGB-D 实验}
+
+在 TUM RGB-D 动态序列上，本文重点分析动态目标对轨迹稳定性的影响。相比静态场景，动态人体会在前端特征提取和匹配阶段引入不稳定观测。若仅依赖单帧语义检测，动态区域判别容易受到漏检、遮挡和检测置信度波动影响，从而造成相邻帧中特征剔除策略不一致。本文通过时间一致性概率递推对动态目标状态进行跨帧累积，使动态区域判断由单帧决策转变为时序估计。
+
+轨迹稳定性分析表明，动态目标处理策略不仅影响最终 ATE，也影响运行过程中的轨迹偏差波动。时间一致性建模能够抑制动态概率在相邻帧之间的突变，使被判定为动态的区域在短时遮挡或检测置信度下降时仍保持一定连续性，从而减少前端观测集合的剧烈变化。
+
+\subsection{Bonn 动态数据集实验}
+
+为进一步验证方法在真实动态 RGB-D 数据上的泛化能力，本文在 Bonn RGB-D Dynamic Dataset 上进行了对比实验。实验序列包括 walking、sitting 和 crowd 三类动态场景，分别对应人员移动、同步运动以及群体运动干扰。表~\ref{tab:bonn_dynamic_results} 报告 ATE RMSE、RPE translation RMSE 和 FPS，轨迹对比见图~\ref{fig:bonn_trajectory}。
+
+\input{tables/Table2_Bonn_Dynamic_Results}
+
+\begin{figure*}[t]
+    \centering
+    \includegraphics[width=0.95\textwidth]{Fig4_Bonn_trajectory.png}
+    \caption{Bonn RGB-D Dynamic Dataset 上的轨迹对比。所有轨迹均在同一坐标系下绘制，坐标单位为 m。}
+    \label{fig:bonn_trajectory}
+\end{figure*}
+
+Bonn 实验结果表明，本文方法在 walking 和 sitting 序列上取得较低 ATE，分别为 0.0465 m 和 0.0418 m。在 crowd 序列上，Dyna-SLAM 的 ATE 为 0.0331 m，略低于本文方法的 0.0381 m；但本文方法在该序列上取得较低 RPE，为 0.0183 m，说明其局部运动估计具有较好的稳定性。同时，本文方法在三个 Bonn 序列上的 FPS 分别为 8.93、7.41 和 11.12，显著高于 DS-SLAM 和 Dyna-SLAM 在相同序列上的运行帧率。
+
+\subsection{时间一致性模块验证}
+
+为验证时间一致性模块对动态目标判别的作用，本文比较了三种动态目标判断方式：YOLO 原始检测、YOLO 与运动一致性融合、以及加入时间一致性概率递推的本文方法。评价指标包括 Precision、Recall 和 F1-score，结果见表~\ref{tab:dynamic_detection_accuracy_final} 和图~\ref{fig:detection_accuracy}。
+
+\input{tables/Table3_Dynamic_Detection_Accuracy}
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=\linewidth]{Fig1_Dynamic_probability.png}
+    \caption{时间一致性动态概率变化曲线。灰色区域表示动态目标出现区间，虚线表示判断阈值。}
+    \label{fig:dynamic_probability}
+\end{figure}
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=\linewidth]{Fig2_Detection_accuracy.png}
+    \caption{动态目标检测 Precision、Recall 和 F1-score 对比。}
+    \label{fig:detection_accuracy}
+\end{figure}
+
+实验结果显示，YOLO 原始检测的 Precision 为 1.0000，Recall 为 0.8866，F1-score 为 0.9399。YOLO+motion consistency 方法的 Recall 降至 0.4968，说明仅依赖运动一致性会使动态判断过于保守。本文时间一致性方法的 Precision 为 0.9961，Recall 为 0.9139，F1-score 为 0.9532，在保持较高精度的同时提高了召回率和综合 F1-score。
+
+\subsection{参数敏感性分析}
+
+时间一致性建模中的时间窗口大小 \(N\) 会影响动态概率累积范围。本文设置 \(N=1,3,5,10,15\)，并记录 ATE、RPE、Smoothness 和 FPS，结果见表~\ref{tab:parameter_sensitivity_final} 和图~\ref{fig:window_analysis}。
+
+\input{tables/Table4_Parameter_Sensitivity}
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=\linewidth]{Fig3_Window_analysis.png}
+    \caption{时间窗口参数敏感性分析。}
+    \label{fig:window_analysis}
+\end{figure}
+
+实验结果表明，随着时间窗口从 \(N=1\) 增加到 \(N=10\)，ATE 从 0.5519 m 降低到 0.5172 m，轨迹 Smoothness 从 0.0347 降低到 0.0291，说明适当增加时间窗口有助于抑制动态判别抖动，提高轨迹平滑性。当窗口进一步增加到 \(N=15\) 时，Smoothness 继续降低，但 ATE 略有回升，同时 FPS 下降。这表明过大的时间窗口虽然能够增强平滑效果，但可能引入响应延迟。
+
+\subsection{消融实验}
+
+为分析不同模块对系统性能的影响，本文进行了模块消融实验。实验设置包括 Baseline、Baseline+Semantic Mask、Baseline+Temporal Consistency、Baseline+Object-level Semantic Map 和 Full Model。评价指标包括 ATE、RPE、FPS 和 Failure Rate，结果见表~\ref{tab:ablation_final} 和图~\ref{fig:ablation}。
+
+\input{tables/Table5_Ablation}
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=\linewidth]{Fig5_Ablation.png}
+    \caption{动态 RGB-D SLAM 系统消融实验。}
+    \label{fig:ablation}
+\end{figure}
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=\linewidth]{Fig6_Semantic_map.png}
+    \caption{对象级语义地图和动态点可视化结果。}
+    \label{fig:semantic_map}
+\end{figure}
+
+从现有结果可以看出，时间一致性模块单独加入并不必然降低轨迹误差，其主要作用是稳定动态目标判别。对象级语义地图更多体现为地图表达和动态对象管理能力，其定量定位收益需要结合完整系统和更多地图质量指标评价。因此，消融实验不支持“每个模块单独提升所有定位指标”的结论，但能够说明时间一致性模块在完整动态处理框架中具有稳定动态判断的作用。
+

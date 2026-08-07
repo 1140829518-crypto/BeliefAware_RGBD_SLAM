@@ -1,0 +1,26 @@
+\begin{table}[t]
+\centering
+\caption{Bonn RGB-D Dynamic Dataset comparison.}
+\label{tab:bonn_dynamic_comparison}
+\begin{tabular}{lrrr}
+\toprule
+Method & ATE(m) & RPE(m) & FPS \\
+\midrule
+\multicolumn{4}{l}{\textit{walking}} \\
+ORB-SLAM3 & 0.632255 & 0.030603 & 20.682597 \\
+DS-SLAM & 0.073741 & 0.020147 & 0.238689 \\
+Dyna-SLAM & 0.440231 & 0.032461 & 4.883229 \\
+Ours & 0.046535 & 0.021345 & 8.925343 \\
+\multicolumn{4}{l}{\textit{sitting}} \\
+ORB-SLAM3 & 1.061364 & 0.025889 & 16.390451 \\
+DS-SLAM & 0.106580 & 0.031494 & 0.028179 \\
+Dyna-SLAM & 0.060351 & 0.039035 & 0.224882 \\
+Ours & 0.041766 & 0.022094 & 7.408893 \\
+\multicolumn{4}{l}{\textit{crowd}} \\
+ORB-SLAM3 & 0.944556 & 0.092551 & 18.017313 \\
+DS-SLAM & 0.355233 & 0.047590 & 0.251805 \\
+Dyna-SLAM & 0.033056 & 0.022007 & 0.290078 \\
+Ours & 0.038137 & 0.018340 & 11.124593 \\
+\bottomrule
+\end{tabular}
+\end{table}

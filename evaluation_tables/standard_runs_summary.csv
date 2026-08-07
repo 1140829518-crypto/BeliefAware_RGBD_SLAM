@@ -1,0 +1,25 @@
+﻿sequence,method,source,matches,ate_rmse,rpe_trans_rmse,rpe_rot_rmse_deg,mean_tracking_time,median_tracking_time,fps,run_dir
+fr3_walking_xyz,ORB-SLAM2,standard_runs,420,0.667118837,0.044211806,0.956702478,0.103867,0.100536,9.627696959,standard_runs/fr3_walking_xyz/orb_slam2
+fr3_walking_xyz,Hard Remove,standard_runs,783,0.399336466,0.047623363,1.005761264,0.103026,0.0856496,9.706287733,standard_runs/fr3_walking_xyz/hard_remove
+fr3_walking_xyz,Dynamic Score,standard_runs,673,0.615286021,0.129632738,2.414165827,0.0718696,0.0656085,13.91408885,standard_runs/fr3_walking_xyz/dynamic_score
+fr3_walking_xyz,Full Method,standard_runs,669,0.331794492,0.055997598,1.080370956,0.0742108,0.0693481,13.47512761,standard_runs/fr3_walking_xyz/full_method
+fr3_walking_rpy,ORB-SLAM2,standard_runs,855,0.946499061,0.082259771,1.730910724,0.100911,0.0955088,9.909722429,standard_runs/fr3_walking_rpy/orb_slam2
+fr3_walking_rpy,Hard Remove,standard_runs,512,0.726482381,0.120104018,2.525488049,0.0730791,0.0650143,13.68380289,standard_runs/fr3_walking_rpy/hard_remove
+fr3_walking_rpy,Dynamic Score,standard_runs,595,0.813317701,0.163844885,3.35621236,0.0710989,0.0652735,14.06491521,standard_runs/fr3_walking_rpy/dynamic_score
+fr3_walking_rpy,Full Method,standard_runs,601,0.772052631,0.077935292,1.719088767,0.0628683,0.0604165,15.90626755,standard_runs/fr3_walking_rpy/full_method
+fr3_walking_halfsphere,ORB-SLAM2,standard_runs,780,0.473346481,0.040602018,1.088635289,0.113568,0.106894,8.805297267,standard_runs/fr3_walking_halfsphere/orb_slam2
+fr3_walking_halfsphere,Hard Remove,standard_runs,525,0.202816213,0.032226183,0.698037769,0.0601776,0.0575096,16.61747893,standard_runs/fr3_walking_halfsphere/hard_remove
+fr3_walking_halfsphere,Dynamic Score,standard_runs,639,0.539574754,0.090339754,1.832825644,0.0660808,0.0584285,15.1329887,standard_runs/fr3_walking_halfsphere/dynamic_score
+fr3_walking_halfsphere,Full Method,standard_runs,533,0.213715642,0.031527916,0.639325293,0.0642373,0.0583982,15.56727945,standard_runs/fr3_walking_halfsphere/full_method
+fr3_walking_static,ORB-SLAM2,standard_runs,590,0.318513637,0.051320861,0.874457921,0.105083,0.0986422,9.516287125,standard_runs/fr3_walking_static/orb_slam2
+fr3_walking_static,Hard Remove,standard_runs,670,0.063685982,0.021557872,0.302317581,0.312358,0.280569,3.201454741,standard_runs/fr3_walking_static/hard_remove
+fr3_walking_static,Dynamic Score,standard_runs,676,0.055032227,0.021783889,0.400020749,0.0781932,0.0639903,12.78883586,standard_runs/fr3_walking_static/dynamic_score
+fr3_walking_static,Full Method,standard_runs,665,0.056455357,0.024451816,0.388427081,0.26668,0.254768,3.749812509,standard_runs/fr3_walking_static/full_method
+fr1_xyz,ORB-SLAM2,standard_runs,792,0.009202928,0.005486848,0.367566555,0.0514874,0.050736,19.42222757,standard_runs/fr1_xyz/orb_slam2
+fr1_xyz,Hard Remove,standard_runs,792,0.009151903,0.005448651,0.364273083,0.0531464,0.0506528,18.8159499,standard_runs/fr1_xyz/hard_remove
+fr1_xyz,Dynamic Score,standard_runs,792,0.009119526,0.005462438,0.368099428,0.0682836,0.0662657,14.6448049,standard_runs/fr1_xyz/dynamic_score
+fr1_xyz,Full Method,standard_runs,792,0.009400772,0.005588124,0.370300244,0.0787377,0.0744732,12.70039638,standard_runs/fr1_xyz/full_method
+fr1_desk,ORB-SLAM2,standard_runs,586,0.019266523,0.009464899,0.566534969,0.0615674,0.058524,16.24236203,standard_runs/fr1_desk/orb_slam2
+fr1_desk,Hard Remove,standard_runs,586,0.015899694,0.00907067,0.558475177,0.0779001,0.0744924,12.836954,standard_runs/fr1_desk/hard_remove
+fr1_desk,Dynamic Score,standard_runs,586,0.03451602,0.009928571,0.55793035,0.164353,0.11453,6.084464537,standard_runs/fr1_desk/dynamic_score
+fr1_desk,Full Method,standard_runs,586,0.016122841,0.008948348,0.547728921,0.341611,0.320195,2.927306205,standard_runs/fr1_desk/full_method

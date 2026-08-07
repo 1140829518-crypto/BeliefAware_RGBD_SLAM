@@ -1,0 +1,14 @@
+# 基于时间一致性建模的鲁棒语义动态 RGB-D SLAM 方法
+
+## 摘要
+
+针对动态场景中运动目标引起的特征误匹配、语义检测抖动和轨迹不稳定问题，提出一种基于时间一致性建模的鲁棒语义动态 RGB-D SLAM 方法。该方法在语义检测和运动一致性判断基础上，引入动态概率递推机制，对目标动态状态进行跨帧累积估计，从而降低单帧漏检、误检和遮挡对动态点筛选的影响。为提高动态场景地图表达能力，系统进一步结合对象级语义信息，对动态目标相关区域进行结构化管理。实验在 TUM RGB-D 和 Bonn RGB-D Dynamic Dataset 上进行，评价指标包括 ATE、RPE、FPS、动态目标检测 Precision/Recall/F1-score 以及轨迹平滑性等。实验结果表明，本文方法在动态目标持续出现的场景中能够获得较稳定的动态概率估计，并在轨迹精度、局部运动稳定性和运行效率之间取得较好折中。需要指出的是，本文方法并非在每个序列的每项误差指标上均取得最小值，其优势主要体现在动态环境下的长期稳定运行趋势和动态判别连续性。
+
+**关键词**：RGB-D SLAM；动态环境；时间一致性；语义 SLAM；动态目标检测；对象级语义地图
+
+## Abstract
+
+A robust semantic dynamic RGB-D SLAM method based on temporal consistency modeling is proposed to address feature mismatches, semantic detection fluctuation, and trajectory instability in dynamic environments. Based on semantic detection and motion consistency cues, the proposed method introduces a recursive dynamic probability model to estimate object motion states across frames, reducing the influence of single-frame false detections, missed detections, and occlusions on dynamic point filtering. Object-level semantic information is further integrated to improve structured map representation in dynamic scenes. Experiments are conducted on the TUM RGB-D dataset and the Bonn RGB-D Dynamic Dataset. The evaluation metrics include ATE, RPE, FPS, dynamic detection Precision/Recall/F1-score, and trajectory smoothness. The results show that the proposed method provides more stable dynamic probability estimation in scenes with persistent dynamic objects and achieves a balanced performance in trajectory accuracy, local motion stability, and computational efficiency. The method does not claim the best value for every metric on every sequence; its main advantage lies in improving long-term stability and temporal continuity of dynamic object reasoning in dynamic environments.
+
+**Key words**: RGB-D SLAM; dynamic environment; temporal consistency; semantic SLAM; dynamic object detection; object-level semantic map
+

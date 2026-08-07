@@ -1,0 +1,8 @@
+RGB-D Input -> ORB-SLAM2 RGB-D Frontend -> Backend Optimization -> Feature Map / Camera Trajectory
+RGB-D Input -> YOLOv5 Semantic Detection -> Dynamic Evidence Update
+ORB-SLAM2 RGB-D Frontend -> Dynamic Evidence Update：提供特征观测与跟踪状态。
+Dynamic Evidence Update -> Temporal Dynamic Evidence Model：语义观测经时间衰减和证据累积形成动态证据。
+Temporal Dynamic Evidence Model -> Dynamic Point Suppression：超过阈值的动态点被抑制。
+Dynamic Point Suppression -> Backend Optimization：减少动态目标对位姿估计和地图优化的干扰。
+Temporal Dynamic Evidence Model -> Object-level Semantic Map：维护对象类别、ID关联和动态状态。
+Object-level Semantic Map -> Final Outputs：输出结构化语义环境表达。
