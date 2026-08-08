@@ -87,7 +87,7 @@ experiment_new/**/environment/
 paper_ready_outputs*/
 paper_figs*/
 paper_materials/
-robot_submission_revision/_docx_tmp/
+**/robot_submission_revision/_docx_tmp/
 table_format_check.txt
 
 # Local editor/system files
