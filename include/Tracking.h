@@ -52,6 +52,14 @@
 #include "System.h"
 #include "SemanticConfig.h"
 
+#ifndef ENABLE_OBJECT_DYNAMIC_SHADOW_MODE
+#define ENABLE_OBJECT_DYNAMIC_SHADOW_MODE 1
+#endif
+
+#if ENABLE_OBJECT_DYNAMIC_SHADOW_MODE
+#include "paper2_development/modules/ObjectDynamic/ObjectDynamicAdapter.h"
+#endif
+
 #include <mutex>
 
 namespace ORB_SLAM2
@@ -375,6 +383,13 @@ protected:
     // queue<vector<double> > Qmid;
     vector<MapPoint*> vStaticObj_Center;
     vector<SemanticFrameStatistics> mvSemanticFrameStatistics;
+
+#if ENABLE_OBJECT_DYNAMIC_SHADOW_MODE
+    // Paper2 shadow-mode state. The adapter owns value snapshots only and its
+    // output is never fed back into Tracking or LocalMapping in shadow mode.
+    Paper2::ObjectDynamicAdapter mObjectDynamicAdapter;
+    Paper2::StableMapView mObjectDynamicStableMapView;
+#endif
 
 
 //*******jy add
