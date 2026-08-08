@@ -1,5 +1,11 @@
 # ORB-SLAM2 超详细注释
 
+## 论文版本与目录说明
+
+- `paper1_tce_release`：论文1《基于时间一致性动态证据累积的语义RGB-D SLAM方法》的冻结版本。论文、图表、实验结果和投稿材料统一保存在 `paper1_release/`。
+- `paper2_development`：论文2开发版本。新增实验、图片、结果、文档和算法模块分别放在 `paper2_development/experiments/`、`figures/`、`results/`、`docs/` 和 `modules/`。
+- `src/`、`include/`、`Examples/`、`lib/`、`cmake_modules/`、`Vocabulary/` 和 `Thirdparty/` 等公共代码及依赖继续保留在项目根目录。
+
 -by 计算机视觉life 公众号旗下开源学习小组：SLAM研习社
 
 
@@ -388,4 +394,3 @@ This is the default mode. The system runs in parallal three threads: Tracking, L
 
 ### Localization Mode
 This mode can be used when you have a good map of your working area. In this mode the Local Mapping and Loop Closing are deactivated. The system localizes the camera in the map (which is no longer updated), using relocalization if needed. 
-
