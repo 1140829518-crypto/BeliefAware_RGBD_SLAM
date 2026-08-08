@@ -43,5 +43,6 @@
 - [x] ObjectAssociation
 - [x] MotionEstimator
 - [x] DynamicMapManager
+- [x] Adapter Layer
 
-当前实现仅依赖 C++11 标准库，不依赖 ORB-SLAM2 内部类或 OpenCV。`ObjectState` 提供对象身份、检测、三维位置、位姿、运动、动态状态、MapPoint ID 和观测历史的基础表示；`ObjectAssociation` 提供语义、IoU、二维中心距离和三维距离的加权一对一关联；`MotionEstimator` 根据连续对象状态估计速度、运动方向和一致性评分，并通过指数平滑更新动态概率；`DynamicMapManager` 管理对象状态机、活跃/丢失/恢复视图、独立 MapPoint ID 关联及多帧确认恢复。
+当前实现仅依赖 C++11 标准库，不依赖 ORB-SLAM2 内部类或 OpenCV。`ObjectState` 提供对象身份、检测、三维位置、位姿、运动、动态状态、MapPoint ID 和观测历史的基础表示；`ObjectAssociation` 提供语义、IoU、二维中心距离和三维距离的加权一对一关联；`MotionEstimator` 根据连续对象状态估计速度、运动方向和一致性评分，并通过指数平滑更新动态概率；`DynamicMapManager` 管理对象状态机、活跃/丢失/恢复视图、独立 MapPoint ID 关联及多帧确认恢复；Adapter Layer 使用无裸指针的值语义快照串联上述模块，并输出供未来 Tracking/LocalMapping 使用的 `StableMapView`。
