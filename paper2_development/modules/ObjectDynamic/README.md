@@ -36,3 +36,12 @@
 ## 开发边界
 
 模块后续实现应保持在 `paper2_development/modules/ObjectDynamic/` 内。需要使用论文1的检测、位姿、深度或地图输出时，通过论文2适配接口读取，不直接修改论文1模块。
+
+## Implementation Status
+
+- [x] ObjectState
+- [x] ObjectAssociation
+- [ ] MotionEstimator
+- [ ] DynamicMapManager
+
+当前第一阶段实现仅依赖 C++11 标准库，不依赖 ORB-SLAM2 内部类或 OpenCV。`ObjectState` 提供对象身份、检测、三维位置、位姿、运动、动态状态、MapPoint ID 和观测历史的基础表示；`ObjectAssociation` 提供语义、IoU、二维中心距离和三维距离的加权一对一关联。
