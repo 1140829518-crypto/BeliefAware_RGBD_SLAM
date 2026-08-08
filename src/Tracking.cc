@@ -51,6 +51,18 @@
 #include <fstream>
 #include <mutex>
 
+// The first shadow-mode patch is intentionally restricted to Tracking files.
+// Keep ObjectDynamic in this single translation unit until the project build
+// manifest is explicitly allowed to list these sources.
+#if ENABLE_OBJECT_DYNAMIC_SHADOW_MODE
+#include "../paper2_development/modules/ObjectDynamic/ObjectState.cc"
+#include "../paper2_development/modules/ObjectDynamic/ObjectAssociation.cc"
+#include "../paper2_development/modules/ObjectDynamic/MotionEstimator.cc"
+#include "../paper2_development/modules/ObjectDynamic/DynamicMapManager.cc"
+#include "../paper2_development/modules/ObjectDynamic/ObjectSnapshot.cc"
+#include "../paper2_development/modules/ObjectDynamic/ObjectDynamicAdapter.cc"
+#endif
+
 
 using namespace std;
 
@@ -104,6 +116,94 @@ inline bool BackProjectSemanticObjectCenter(Frame &frame,
     worldCenter = frame.GetRotationInverse() * x3Dc + frame.GetCameraCenter();
     return true;
 }
+
+#if ENABLE_OBJECT_DYNAMIC_SHADOW_MODE
+Paper2::PoseMatrix4d CopyCameraPose(const cv::Mat &Tcw)
+{
+    Paper2::PoseMatrix4d pose = Paper2::ObjectState::IdentityPose();
+    if(Tcw.empty() || Tcw.rows != 4 || Tcw.cols != 4)
+        return pose;
+
+    cv::Mat pose64;
+    Tcw.convertTo(pose64, CV_64F);
+    for(int row = 0; row < 4; ++row)
+    {
+        for(int column = 0; column < 4; ++column)
+            pose[static_cast<std::size_t>(row * 4 + column)] =
+                pose64.at<double>(row, column);
+    }
+    return pose;
+}
+
+bool IsKeyPointInsideBox(const cv::KeyPoint &keypoint,
+                         const Paper2::BoundingBox2D &bbox)
+{
+    return keypoint.pt.x >= bbox.left && keypoint.pt.x <= bbox.right
+        && keypoint.pt.y >= bbox.top && keypoint.pt.y <= bbox.bottom;
+}
+
+Paper2::ObjectSnapshot BuildObjectDynamicSnapshot(Frame &frame)
+{
+    Paper2::ObjectSnapshot snapshot(
+        static_cast<std::uint64_t>(frame.mnId),
+        static_cast<double>(frame.mTimeStamp),
+        CopyCameraPose(frame.mTcw));
+
+    for(std::size_t objectIndex = 0;
+        objectIndex < frame.objects_cur_.size(); ++objectIndex)
+    {
+        const std::shared_ptr<Object> &object = frame.objects_cur_[objectIndex];
+        if(!object || object->vdetect_parameter.size() < 4)
+            continue;
+
+        const std::vector<double> &box = object->vdetect_parameter;
+        const Paper2::BoundingBox2D bbox(box[0], box[1], box[2], box[3]);
+        if(bbox.right <= bbox.left || bbox.bottom <= bbox.top)
+            continue;
+
+        cv::Mat worldCenter;
+        Paper2::Vector3D position;
+        if(BackProjectSemanticObjectCenter(frame, box, worldCenter)
+           && worldCenter.rows == 3 && worldCenter.cols == 1)
+        {
+            cv::Mat center64;
+            worldCenter.convertTo(center64, CV_64F);
+            position = Paper2::Vector3D(center64.at<double>(0),
+                                        center64.at<double>(1),
+                                        center64.at<double>(2));
+        }
+
+        // The current paper1 DTO carries bbox and class only. A neutral valid
+        // value is used until confidence is preserved by the upstream API.
+        Paper2::SnapshotDetection detection(
+            object->ndetect_class,
+            SemanticClassNameFromId(object->ndetect_class),
+            bbox,
+            1.0,
+            position);
+
+        const std::size_t featureCount = std::min(
+            frame.mvpMapPoints.size(), frame.mvKeysUn.size());
+        for(std::size_t featureIndex = 0;
+            featureIndex < featureCount; ++featureIndex)
+        {
+            MapPoint *mapPoint = frame.mvpMapPoints[featureIndex];
+            if(!mapPoint || mapPoint->isBad()
+               || (featureIndex < frame.mvbOutlier.size()
+                   && frame.mvbOutlier[featureIndex])
+               || !IsKeyPointInsideBox(frame.mvKeysUn[featureIndex], bbox))
+            {
+                continue;
+            }
+            detection.AddMapPointId(
+                static_cast<Paper2::ObjectState::MapPointId>(mapPoint->mnId));
+        }
+        snapshot.AddDetection(detection);
+    }
+
+    return snapshot;
+}
+#endif
 } // namespace
 
 ///构造函数
@@ -777,6 +877,20 @@ void Tracking::Track()
             // 这里不仅仅是清除mlpTemporalPoints，通过delete pMP还删除了指针指向的MapPoint
             // 不能够直接执行这个是因为其中存储的都是指针,之前的操作都是为了避免内存泄露
             mlpTemporalPoints.clear();
+
+#if ENABLE_OBJECT_DYNAMIC_SHADOW_MODE
+            // Paper2 shadow mode: observe the final successful Tracking state,
+            // but never feed the adapter output back into the SLAM pipeline.
+            const Paper2::ObjectSnapshot objectSnapshot =
+                BuildObjectDynamicSnapshot(mCurrentFrame);
+            mObjectDynamicStableMapView =
+                mObjectDynamicAdapter.ProcessFrame(objectSnapshot);
+            cout << "[ObjectDynamicShadow] frame=" << mCurrentFrame.mnId
+                 << " detections=" << objectSnapshot.detections.size()
+                 << " active=" << mObjectDynamicStableMapView.active_objects.size()
+                 << " dynamic=" << mObjectDynamicStableMapView.dynamic_objects.size()
+                 << endl;
+#endif
 
             // Check if we need to insert a new keyframe
             // Step 8：检测并插入关键帧，对于双目或RGB-D会产生新的地图点
@@ -2544,6 +2658,11 @@ void Tracking::Reset()
     KeyFrame::nNextId = 0;
     Frame::nNextId = 0;
     mState = NO_IMAGES_YET;
+
+#if ENABLE_OBJECT_DYNAMIC_SHADOW_MODE
+    mObjectDynamicAdapter = Paper2::ObjectDynamicAdapter();
+    mObjectDynamicStableMapView = Paper2::StableMapView();
+#endif
 
     if(mpInitializer)
     {
