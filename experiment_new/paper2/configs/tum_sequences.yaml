@@ -1,6 +1,3 @@
-# Unified TUM RGB-D sequence configuration for Paper2 experiments.
-# Paths containing ${PROJECT_ROOT} are resolved by scripts/_run_rgbd.sh.
-
 defaults:
   vocabulary_path: "${PROJECT_ROOT}/Vocabulary/ORBvoc.txt"
   yaml_path: "${PROJECT_ROOT}/Examples/RGB-D/TUM3.yaml"
@@ -11,26 +8,27 @@ defaults:
     save_keyframe_trajectory: true
 
 sequences:
+
   fr3_sitting_static:
-    dataset_path: "${PROJECT_ROOT}/rgbd_dataset_freiburg3_sitting_static"
-    association_path: "${PROJECT_ROOT}/rgbd_dataset_freiburg3_sitting_static/associate.txt"
+    dataset_path: "/home/djn/datasets/TUMRGBD/rgbd_dataset_freiburg3_sitting_static"
+    association_path: "/home/djn/datasets/TUMRGBD/rgbd_dataset_freiburg3_sitting_static/associations.txt"
     yaml_path: "${PROJECT_ROOT}/Examples/RGB-D/TUM3.yaml"
     run_parameters: "default"
 
   fr3_walking_xyz:
-    dataset_path: "${PROJECT_ROOT}/rgbd_dataset_freiburg3_walking_xyz"
-    association_path: "${PROJECT_ROOT}/rgbd_dataset_freiburg3_walking_xyz/associate.txt"
+    dataset_path: "/home/djn/datasets/TUMRGBD/rgbd_dataset_freiburg3_walking_xyz"
+    association_path: "/home/djn/datasets/TUMRGBD/rgbd_dataset_freiburg3_walking_xyz/associations.txt"
     yaml_path: "${PROJECT_ROOT}/Examples/RGB-D/TUM3.yaml"
     run_parameters: "default"
 
   fr3_walking_rpy:
-    dataset_path: "${PROJECT_ROOT}/rgbd_dataset_freiburg3_walking_rpy"
-    association_path: "${PROJECT_ROOT}/rgbd_dataset_freiburg3_walking_rpy/associate.txt"
+    dataset_path: "/home/djn/datasets/TUMRGBD/rgbd_dataset_freiburg3_walking_rpy"
+    association_path: "/home/djn/datasets/TUMRGBD/rgbd_dataset_freiburg3_walking_rpy/associations.txt"
     yaml_path: "${PROJECT_ROOT}/Examples/RGB-D/TUM3.yaml"
     run_parameters: "default"
 
   fr3_walking_static:
-    dataset_path: "${PROJECT_ROOT}/rgbd_dataset_freiburg3_walking_static"
-    association_path: "${PROJECT_ROOT}/rgbd_dataset_freiburg3_walking_static/associate.txt"
+    dataset_path: "/home/djn/datasets/TUMRGBD/rgbd_dataset_freiburg3_walking_static"
+    association_path: "/home/djn/datasets/TUMRGBD/rgbd_dataset_freiburg3_walking_static/associations.txt"
     yaml_path: "${PROJECT_ROOT}/Examples/RGB-D/TUM3.yaml"
     run_parameters: "default"
