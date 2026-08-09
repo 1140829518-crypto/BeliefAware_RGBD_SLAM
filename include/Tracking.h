@@ -56,8 +56,20 @@
 #define ENABLE_OBJECT_DYNAMIC_SHADOW_MODE 1
 #endif
 
+#ifndef ENABLE_OBJECT_DYNAMIC_ACTIVE_MODE
+#define ENABLE_OBJECT_DYNAMIC_ACTIVE_MODE 0
+#endif
+
+#if ENABLE_OBJECT_DYNAMIC_ACTIVE_MODE && !ENABLE_OBJECT_DYNAMIC_SHADOW_MODE
+#error "ObjectDynamic Active Mode requires Shadow Mode adapter support"
+#endif
+
 #if ENABLE_OBJECT_DYNAMIC_SHADOW_MODE
 #include "paper2_development/modules/ObjectDynamic/ObjectDynamicAdapter.h"
+#endif
+
+#if ENABLE_OBJECT_DYNAMIC_ACTIVE_MODE
+#include "paper2_development/modules/ObjectDynamic/DynamicMapFilter.h"
 #endif
 
 #include <mutex>
@@ -342,6 +354,11 @@ protected:
      * @return false        跟踪失败
      */
     bool TrackLocalMap();
+#if ENABLE_OBJECT_DYNAMIC_ACTIVE_MODE
+    std::size_t CountCurrentFrameMapPoints() const;
+    std::size_t FilterCurrentFrameDynamicMapPoints();
+    std::size_t FilterLocalDynamicMapPoints();
+#endif
     /**
      * @brief 对 Local MapPoints 进行跟踪
      * 
@@ -389,6 +406,10 @@ protected:
     // output is never fed back into Tracking or LocalMapping in shadow mode.
     Paper2::ObjectDynamicAdapter mObjectDynamicAdapter;
     Paper2::StableMapView mObjectDynamicStableMapView;
+#endif
+#if ENABLE_OBJECT_DYNAMIC_ACTIVE_MODE
+    // Active mode owns only an ID-based filter; it never owns MapPoint data.
+    Paper2::DynamicMapFilter mDynamicMapFilter;
 #endif
 
 
