@@ -62,6 +62,9 @@
 #include "../paper2_development/modules/ObjectDynamic/ObjectSnapshot.cc"
 #include "../paper2_development/modules/ObjectDynamic/ObjectDynamicAdapter.cc"
 #endif
+#if ENABLE_OBJECT_DYNAMIC_ACTIVE_MODE
+#include "../paper2_development/modules/ObjectDynamic/DynamicMapFilter.cc"
+#endif
 
 
 using namespace std;
@@ -890,6 +893,13 @@ void Tracking::Track()
                  << " active=" << mObjectDynamicStableMapView.active_objects.size()
                  << " dynamic=" << mObjectDynamicStableMapView.dynamic_objects.size()
                  << endl;
+#if ENABLE_OBJECT_DYNAMIC_ACTIVE_MODE
+            if(mObjectDynamicStableMapView.snapshot_accepted)
+            {
+                mDynamicMapFilter.UpdateMapView(mObjectDynamicStableMapView);
+                mDynamicMapFilter.ClearExpiredPoints();
+            }
+#endif
 #endif
 
             // Check if we need to insert a new keyframe
@@ -1629,12 +1639,33 @@ bool Tracking::TrackLocalMap()
     // We have an estimation of the camera pose and some map points tracked in the frame.
     // We retrieve the local map and try to find matches to points in the local map.
 
+#if ENABLE_OBJECT_DYNAMIC_ACTIVE_MODE
+    const std::size_t beforePoints = CountCurrentFrameMapPoints();
+    std::size_t filteredPoints = FilterCurrentFrameDynamicMapPoints();
+#endif
+
     // Update Local KeyFrames and Local Points
     // Step 1：更新局部关键帧 mvpLocalKeyFrames 和局部地图点 mvpLocalMapPoints
     UpdateLocalMap();
 
+#if ENABLE_OBJECT_DYNAMIC_ACTIVE_MODE
+    filteredPoints += FilterLocalDynamicMapPoints();
+#endif
+
     // Step 2：在局部地图中查找与当前帧匹配的MapPoints, 其实也就是用局部地图点进行跟踪
     SearchLocalPoints();
+
+#if ENABLE_OBJECT_DYNAMIC_ACTIVE_MODE
+    // Defensive barrier: no Dynamic object point may reach pose optimization,
+    // including associations produced by an earlier Tracking stage.
+    filteredPoints += FilterCurrentFrameDynamicMapPoints();
+    const std::size_t afterPoints = CountCurrentFrameMapPoints();
+    cout << "[ObjectDynamicActive] frame=" << mCurrentFrame.mnId
+         << " before_points=" << beforePoints
+         << " filtered_points=" << filteredPoints
+         << " after_points=" << afterPoints
+         << endl;
+#endif
 
     // Optimize Pose
     // 在这个函数之前，在 Relocalization、TrackReferenceKeyFrame、TrackWithMotionModel 中都有位姿优化，
@@ -1689,6 +1720,62 @@ bool Tracking::TrackLocalMap()
     else
         return true;
 }
+
+#if ENABLE_OBJECT_DYNAMIC_ACTIVE_MODE
+std::size_t Tracking::CountCurrentFrameMapPoints() const
+{
+    std::size_t count = 0;
+    for(std::vector<MapPoint*>::const_iterator current =
+            mCurrentFrame.mvpMapPoints.begin();
+        current != mCurrentFrame.mvpMapPoints.end(); ++current)
+    {
+        if(*current)
+            ++count;
+    }
+    return count;
+}
+
+std::size_t Tracking::FilterCurrentFrameDynamicMapPoints()
+{
+    std::size_t filtered = 0;
+    for(std::vector<MapPoint*>::iterator current =
+            mCurrentFrame.mvpMapPoints.begin();
+        current != mCurrentFrame.mvpMapPoints.end(); ++current)
+    {
+        MapPoint *mapPoint = *current;
+        if(mapPoint && mDynamicMapFilter.IsDynamicMapPoint(
+               static_cast<Paper2::ObjectState::MapPointId>(mapPoint->mnId)))
+        {
+            // Remove only the current Frame association. The MapPoint, Map,
+            // KeyFrame observations, and paper1 evidence remain untouched.
+            *current = static_cast<MapPoint*>(NULL);
+            ++filtered;
+        }
+    }
+    return filtered;
+}
+
+std::size_t Tracking::FilterLocalDynamicMapPoints()
+{
+    std::size_t filtered = 0;
+    std::vector<MapPoint*>::iterator output = mvpLocalMapPoints.begin();
+    for(std::vector<MapPoint*>::iterator current = mvpLocalMapPoints.begin();
+        current != mvpLocalMapPoints.end(); ++current)
+    {
+        MapPoint *mapPoint = *current;
+        if(mapPoint && mDynamicMapFilter.IsDynamicMapPoint(
+               static_cast<Paper2::ObjectState::MapPointId>(mapPoint->mnId)))
+        {
+            ++filtered;
+            continue;
+        }
+        *output = mapPoint;
+        ++output;
+    }
+    mvpLocalMapPoints.erase(output, mvpLocalMapPoints.end());
+    return filtered;
+}
+#endif
 
 /**
  * @brief Semantic Dynamic Probability Accumulation 的最后一层抑制
@@ -2662,6 +2749,9 @@ void Tracking::Reset()
 #if ENABLE_OBJECT_DYNAMIC_SHADOW_MODE
     mObjectDynamicAdapter = Paper2::ObjectDynamicAdapter();
     mObjectDynamicStableMapView = Paper2::StableMapView();
+#endif
+#if ENABLE_OBJECT_DYNAMIC_ACTIVE_MODE
+    mDynamicMapFilter.Clear();
 #endif
 
     if(mpInitializer)
