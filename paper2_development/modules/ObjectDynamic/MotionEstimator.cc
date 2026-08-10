@@ -136,7 +136,10 @@ MotionEstimate MotionEstimator::Estimate(const ObjectState &previous,
             / consistency_weight_sum;
     }
 
-    estimate.motion_score = ClampUnit(speed_score * consistency_score);
+    const double geometry_motion = ClampUnit(speed_score * consistency_score);
+    const double semantic_prior = current.GetClassId() == 3 ? 1.0 : 0.0;
+    estimate.motion_score = ClampUnit(
+        0.5 * geometry_motion + 0.5 * semantic_prior);
     estimate.updated_dynamic_probability = ClampUnit(
         smoothing_alpha_ * current.GetDynamicProbability()
         + (1.0 - smoothing_alpha_) * estimate.motion_score);
