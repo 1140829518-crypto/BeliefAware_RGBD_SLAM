@@ -17,7 +17,7 @@ sequences:
 
   fr3_walking_xyz:
     dataset_path: "/home/djn/datasets/TUMRGBD/rgbd_dataset_freiburg3_walking_xyz"
-    association_path: "/home/djn/datasets/TUMRGBD/rgbd_dataset_freiburg3_walking_xyz/associate.txtls /home/djn/datasets/TUMRGBD/rgbd_dataset_freiburg3_walking_rpy | grep associate"
+    association_path: "/home/djn/datasets/TUMRGBD/rgbd_dataset_freiburg3_walking_xyz/associate.txt"
     yaml_path: "${PROJECT_ROOT}/Examples/RGB-D/TUM3.yaml"
     run_parameters: "default"
 
