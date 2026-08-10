@@ -74,7 +74,7 @@ ObjectState::ObjectState(ObjectId object_id,
       pose_(IdentityPose()),
       velocity_(),
       motion_direction_(),
-      dynamic_probability_(0.5),
+      dynamic_probability_(class_id == 3 ? 0.7 : 0.5),
       state_(ObjectLifecycleState::PotentialDynamic),
       timestamp_(timestamp),
       observation_count_(1)

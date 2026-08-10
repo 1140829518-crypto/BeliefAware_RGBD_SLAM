@@ -1,0 +1,7 @@
+mouse 0.57
+bottle 0.60
+tv 0.71
+tv 0.83
+person 0.88
+chair 0.88
+person 0.89

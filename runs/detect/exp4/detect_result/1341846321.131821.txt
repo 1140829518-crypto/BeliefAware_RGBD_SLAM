@@ -1,0 +1,4 @@
+mouse 0.56
+tv 0.76
+tv 0.80
+person 0.90

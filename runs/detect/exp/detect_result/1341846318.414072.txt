@@ -1,0 +1,6 @@
+mouse 0.53
+chair 0.61
+chair 0.72
+tv 0.83
+person 0.83
+tv 0.84

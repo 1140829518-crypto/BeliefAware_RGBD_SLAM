@@ -1,0 +1,3 @@
+bottle 0.62
+chair 0.64
+person 0.74

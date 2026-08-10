@@ -1,0 +1,6 @@
+teddy bear 0.50
+bottle 0.68
+person 0.85
+tv 0.86
+person 0.87
+chair 0.89

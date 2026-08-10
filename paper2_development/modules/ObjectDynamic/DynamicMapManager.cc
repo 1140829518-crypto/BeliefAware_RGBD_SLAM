@@ -139,7 +139,7 @@ bool DynamicMapManager::CheckTransition(ObjectState::ObjectId object_id,
         return false;
 
     ObjectState &object = it->second;
-    const ObjectLifecycleState current_state = object.GetLifecycleState();
+    ObjectLifecycleState current_state = object.GetLifecycleState();
 
     if(!observed)
     {
@@ -150,11 +150,14 @@ bool DynamicMapManager::CheckTransition(ObjectState::ObjectId object_id,
 
     if(current_state == ObjectLifecycleState::Lost)
     {
-        RecoverObject(object_id);
-        return true;
+        object.SetLifecycleState(ObjectLifecycleState::PotentialDynamic);
+        recovery_confirmations_[object_id] = 0;
+        current_state = ObjectLifecycleState::PotentialDynamic;
     }
 
     const double probability = object.GetDynamicProbability();
+    const double object_dynamic_threshold =
+        object.GetClassId() == 3 ? 0.60 : dynamic_threshold_;
     if(current_state == ObjectLifecycleState::Static)
     {
         if(probability >= potential_dynamic_threshold_)
@@ -162,7 +165,7 @@ bool DynamicMapManager::CheckTransition(ObjectState::ObjectId object_id,
     }
     else if(current_state == ObjectLifecycleState::PotentialDynamic)
     {
-        if(probability >= dynamic_threshold_)
+        if(probability >= object_dynamic_threshold)
             object.SetLifecycleState(ObjectLifecycleState::Dynamic);
         else if(probability <= static_threshold_)
             object.SetLifecycleState(ObjectLifecycleState::Static);
@@ -174,7 +177,7 @@ bool DynamicMapManager::CheckTransition(ObjectState::ObjectId object_id,
     }
     else if(current_state == ObjectLifecycleState::Recovered)
     {
-        if(probability >= dynamic_threshold_)
+        if(probability >= object_dynamic_threshold)
             object.SetLifecycleState(ObjectLifecycleState::Dynamic);
     }
 

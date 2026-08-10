@@ -50,10 +50,12 @@
 //for socket//zt4
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <sys/time.h>
 #include <stdio.h>
 #include <sys/un.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <errno.h>
 
 using namespace std;
 
@@ -117,6 +119,16 @@ int main(int argc, char **argv)
             printf("ensure the server is up\n");
                 perror("connect");
                 exit(EXIT_FAILURE);
+        }
+
+        struct timeval receive_timeout;
+        receive_timeout.tv_sec = 5;
+        receive_timeout.tv_usec = 0;
+        if(setsockopt(sockfd, SOL_SOCKET, SO_RCVTIMEO,
+                      &receive_timeout, sizeof(receive_timeout)) == -1)
+        {
+            perror("setsockopt SO_RCVTIMEO");
+            exit(EXIT_FAILURE);
         }
     }
    //zt6********
@@ -208,8 +220,16 @@ LoadImages(strAssociationFilename, vstrImageFilenamesRGB, vstrImageFilenamesD, v
         //! 追踪
         if(ni % 25 == 0)
             cout << "[RGBD_TUM] frame " << ni << "/" << nImages << endl;
-        if(use_semantics)
+        if(sockfd >= 0)
+        {
+            const char send_buf[] = "ok";
+            if(write(sockfd, send_buf, strlen(send_buf)) == -1)
+            {
+                perror("write");
+                exit(EXIT_FAILURE);
+            }
             MakeDetect_result(detect_result,sockfd);
+        }
         else
             detect_result.clear();
         // sleep(0.5);
@@ -464,22 +484,21 @@ void MakeDetect_result(vector<std::pair<vector<double>, int>>& detect_result , i
     detect_result.clear();
 
 	std::pair<vector<double>, int> detect_result_str;
-	char send_buf[] = "ok";
 	char ch_recv[1024] = {0};
-
-	if(write(sockfd, send_buf, strlen(send_buf))==-1)
-    {
-		perror("write");
-		exit(EXIT_FAILURE);
-	}
 
     ssize_t byte = read(sockfd, ch_recv, sizeof(ch_recv) - 1);
     if(byte==-1)
 	{
+		if(errno == EAGAIN || errno == EWOULDBLOCK)
+			return;
 		perror("read");
 		exit(EXIT_FAILURE);
 	}
     ch_recv[byte] = '\0';
+
+    cout << "===== YOLO RECV =====" << endl;
+    cout << ch_recv << endl;
+    cout << "=====================" << endl;
 
     char *ptr;//char[]可读可写,可以修改字符串的内容。char*可读不可写，写入就会导致段错误
     ptr = strtok(ch_recv, "*");//字符串分割函数

@@ -1,0 +1,6 @@
+refrigerator 0.51
+tv 0.68
+person 0.78
+tv 0.81
+chair 0.90
+person 0.91

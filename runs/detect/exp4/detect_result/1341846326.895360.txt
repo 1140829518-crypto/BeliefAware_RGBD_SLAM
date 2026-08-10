@@ -1,0 +1,5 @@
+cup 0.56
+bottle 0.64
+tv 0.83
+tv 0.84
+chair 0.88

@@ -1,0 +1,4 @@
+keyboard 0.58
+mouse 0.62
+tv 0.73
+tv 0.80

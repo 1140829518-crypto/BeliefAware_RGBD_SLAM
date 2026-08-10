@@ -1,0 +1,4 @@
+keyboard 0.55
+bottle 0.57
+tv 0.80
+tv 0.80

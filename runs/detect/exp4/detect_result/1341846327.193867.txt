@@ -1,0 +1,7 @@
+mouse 0.60
+refrigerator 0.63
+cup 0.76
+tv 0.81
+tv 0.83
+person 0.88
+chair 0.90

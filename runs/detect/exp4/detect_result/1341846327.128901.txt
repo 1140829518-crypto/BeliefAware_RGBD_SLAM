@@ -1,0 +1,5 @@
+cup 0.58
+tv 0.75
+tv 0.78
+person 0.80
+chair 0.89

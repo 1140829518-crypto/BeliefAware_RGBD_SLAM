@@ -1,0 +1,5 @@
+chair 0.62
+person 0.82
+tv 0.83
+chair 0.86
+person 0.87

@@ -1,0 +1,6 @@
+mouse 0.53
+keyboard 0.54
+bottle 0.69
+tv 0.79
+tv 0.80
+person 0.83

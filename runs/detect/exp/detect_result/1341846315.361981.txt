@@ -1,0 +1,6 @@
+keyboard 0.62
+bottle 0.74
+tv 0.89
+chair 0.89
+person 0.91
+person 0.91

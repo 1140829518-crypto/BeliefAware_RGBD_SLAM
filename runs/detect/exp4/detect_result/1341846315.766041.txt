@@ -1,0 +1,5 @@
+bottle 0.71
+chair 0.85
+person 0.85
+tv 0.89
+person 0.93

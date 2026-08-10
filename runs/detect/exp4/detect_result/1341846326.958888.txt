@@ -1,0 +1,7 @@
+refrigerator 0.55
+person 0.59
+cup 0.60
+bottle 0.70
+tv 0.86
+tv 0.87
+chair 0.88

@@ -1,0 +1,4 @@
+bottle 0.62
+mouse 0.68
+tv 0.83
+person 0.92
