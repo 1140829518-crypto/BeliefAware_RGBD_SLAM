@@ -1,5 +1,69 @@
 # ORB-SLAM2 超详细注释
 
+## Paper2 Object-level Dynamic RGB-D SLAM
+
+本项目在 ORB-SLAM2 RGB-D 流程上集成 YOLOv5 语义检测、SemanticDynamic 点级动态证据和 ObjectDynamic 对象级时空状态管理，用于动态场景下的论文实验。项目保留 ORB-SLAM2 原有目录，论文2新增模块位于 `paper2_development/modules/ObjectDynamic/`，实验工具位于 `experiment_new/paper2/` 和根目录 `scripts/`。
+
+### 编译方法
+
+准备 OpenCV、Eigen、Pangolin 及工程原有第三方依赖后，在项目根目录执行：
+
+```bash
+mkdir -p build
+cd build
+cmake ..
+make -j8
+```
+
+成功构建 RGB-D 示例时会显示：
+
+```text
+[100%] Built target rgbd_tum
+```
+
+### 数据集说明
+
+论文2实验采用 TUM RGB-D 动态序列。序列的数据集目录、association 文件和相机参数配置统一记录在：
+
+```text
+experiment_new/paper2/configs/tum_sequences.yaml
+```
+
+运行前应检查本机路径，并确保每个序列包含 `rgb/`、`depth/` 和配置中指定的 association 文件。批量实验覆盖 walking/sitting 的 xyz、rpy 和 halfsphere 序列。
+
+### 实验运行方法
+
+YOLO socket 服务由 Active 实验入口自动管理。运行全部最终实验：
+
+```bash
+scripts/run_paper2_experiments.sh
+```
+
+运行前可通过 `PAPER2_ACTIVE_BINARY` 指定已编译的稳定版本程序。单个已配置序列仍可使用：
+
+```bash
+experiment_new/paper2/scripts/run_active.sh fr3_walking_xyz
+```
+
+汇总最终实验统计：
+
+```bash
+python3 scripts/analyze_paper2_results.py
+```
+
+### 输出结果说明
+
+最终实验写入 `experiment_new/paper2/results/final/<sequence>/<timestamp>/`，每次运行保存：
+
+- `run.log`
+- `CameraTrajectory.txt`
+- `KeyFrameTrajectory.txt`
+- `SemanticObjects.txt`
+- `SemanticDynamicStatistics.txt`
+- `yolo.log`
+
+统计脚本生成 `experiment_new/paper2/results/final/paper2_dynamic_statistics.csv`，包含序列、帧数、动态/静态对象计数、平均动态对象数和平均跟踪时间。该统计仅整理程序输出，不代表额外性能结论。
+
 ## 论文版本与目录说明
 
 - `paper1_tce_release`：论文1《基于时间一致性动态证据累积的语义RGB-D SLAM方法》的冻结版本。论文、图表、实验结果和投稿材料统一保存在 `paper1_release/`。

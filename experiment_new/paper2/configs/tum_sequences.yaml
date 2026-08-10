@@ -32,3 +32,21 @@ sequences:
     association_path: "/home/djn/datasets/TUMRGBD/rgbd_dataset_freiburg3_walking_halfsphere/associate.txt"
     yaml_path: "${PROJECT_ROOT}/Examples/RGB-D/TUM3.yaml"
     run_parameters: "default"
+
+  fr3_sitting_xyz:
+    dataset_path: "/home/djn/datasets/TUMRGBD/rgbd_dataset_freiburg3_sitting_xyz"
+    association_path: "/home/djn/datasets/TUMRGBD/rgbd_dataset_freiburg3_sitting_xyz/associate.txt"
+    yaml_path: "${PROJECT_ROOT}/Examples/RGB-D/TUM3.yaml"
+    run_parameters: "default"
+
+  fr3_sitting_rpy:
+    dataset_path: "/home/djn/datasets/TUMRGBD/rgbd_dataset_freiburg3_sitting_rpy"
+    association_path: "/home/djn/datasets/TUMRGBD/rgbd_dataset_freiburg3_sitting_rpy/associate.txt"
+    yaml_path: "${PROJECT_ROOT}/Examples/RGB-D/TUM3.yaml"
+    run_parameters: "default"
+
+  fr3_sitting_halfsphere:
+    dataset_path: "/home/djn/datasets/TUMRGBD/rgbd_dataset_freiburg3_sitting_halfsphere"
+    association_path: "/home/djn/datasets/TUMRGBD/rgbd_dataset_freiburg3_sitting_halfsphere/associate.txt"
+    yaml_path: "${PROJECT_ROOT}/Examples/RGB-D/TUM3.yaml"
+    run_parameters: "default"
