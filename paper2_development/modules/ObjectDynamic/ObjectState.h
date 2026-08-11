@@ -71,7 +71,8 @@ public:
                 const BoundingBox2D &bbox,
                 double confidence,
                 const Vector3D &position,
-                double timestamp);
+                double timestamp,
+                bool position_valid = true);
     ~ObjectState();
 
     static ObjectState Create(ObjectId object_id,
@@ -80,14 +81,16 @@ public:
                               const BoundingBox2D &bbox,
                               double confidence,
                               const Vector3D &position,
-                              double timestamp);
+                              double timestamp,
+                              bool position_valid = true);
 
     void UpdateState(int class_id,
                      const std::string &class_name,
                      const BoundingBox2D &bbox,
                      double confidence,
                      const Vector3D &position,
-                     double timestamp);
+                     double timestamp,
+                     bool position_valid = true);
     void UpdatePose(const PoseMatrix4d &pose);
     void UpdateVelocity(const Vector3D &velocity);
     void SetDynamicProbability(double probability);
@@ -103,6 +106,7 @@ public:
     const BoundingBox2D &GetBoundingBox() const;
     double GetConfidence() const;
     const Vector3D &GetPosition() const;
+    bool IsPositionValid() const;
     const PoseMatrix4d &GetPose() const;
     const Vector3D &GetVelocity() const;
     const Vector3D &GetMotionDirection() const;
@@ -126,6 +130,7 @@ private:
     double confidence_;
 
     Vector3D position_;
+    bool position_valid_;
     PoseMatrix4d pose_;
 
     Vector3D velocity_;

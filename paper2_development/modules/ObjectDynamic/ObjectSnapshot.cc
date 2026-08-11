@@ -53,7 +53,8 @@ bool AddUniqueMapPointId(std::vector<ObjectState::MapPointId> *ids,
 } // namespace
 
 SnapshotDetection::SnapshotDetection()
-    : class_id(-1), class_name("unknown"), bbox(), confidence(0.0), position_3d()
+    : class_id(-1), class_name("unknown"), bbox(), confidence(0.0), position_3d(),
+      position_valid(false)
 {
 }
 
@@ -61,12 +62,14 @@ SnapshotDetection::SnapshotDetection(int class_id_value,
                                      const std::string &class_name_value,
                                      const BoundingBox2D &bbox_value,
                                      double confidence_value,
-                                     const Vector3D &position_3d_value)
+                                     const Vector3D &position_3d_value,
+                                     bool position_valid_value)
     : class_id(class_id_value),
       class_name(class_name_value),
       bbox(bbox_value),
       confidence(confidence_value),
-      position_3d(position_3d_value)
+      position_3d(position_3d_value),
+      position_valid(position_valid_value)
 {
 }
 

@@ -32,6 +32,7 @@ struct SnapshotDetection
     BoundingBox2D bbox;
     double confidence;
     Vector3D position_3d;
+    bool position_valid;
     std::vector<ObjectState::MapPointId> map_point_ids;
 
     SnapshotDetection();
@@ -39,7 +40,8 @@ struct SnapshotDetection
                       const std::string &class_name_value,
                       const BoundingBox2D &bbox_value,
                       double confidence_value,
-                      const Vector3D &position_3d_value);
+                      const Vector3D &position_3d_value,
+                      bool position_valid_value = true);
 
     bool AddMapPointId(ObjectState::MapPointId map_point_id);
     bool IsValid() const;

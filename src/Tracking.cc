@@ -166,8 +166,10 @@ Paper2::ObjectSnapshot BuildObjectDynamicSnapshot(Frame &frame)
 
         cv::Mat worldCenter;
         Paper2::Vector3D position;
-        if(BackProjectSemanticObjectCenter(frame, box, worldCenter)
-           && worldCenter.rows == 3 && worldCenter.cols == 1)
+        const bool positionValid =
+            BackProjectSemanticObjectCenter(frame, box, worldCenter)
+            && worldCenter.rows == 3 && worldCenter.cols == 1;
+        if(positionValid)
         {
             cv::Mat center64;
             worldCenter.convertTo(center64, CV_64F);
@@ -183,7 +185,8 @@ Paper2::ObjectSnapshot BuildObjectDynamicSnapshot(Frame &frame)
             SemanticClassNameFromId(object->ndetect_class),
             bbox,
             1.0,
-            position);
+            position,
+            positionValid);
 
         const std::size_t featureCount = std::min(
             frame.mvpMapPoints.size(), frame.mvKeysUn.size());
@@ -886,10 +889,20 @@ void Tracking::Track()
             // but never feed the adapter output back into the SLAM pipeline.
             const Paper2::ObjectSnapshot objectSnapshot =
                 BuildObjectDynamicSnapshot(mCurrentFrame);
+            std::size_t validPositionCount = 0;
+            for(std::size_t detectionIndex = 0;
+                detectionIndex < objectSnapshot.detections.size(); ++detectionIndex)
+            {
+                if(objectSnapshot.detections[detectionIndex].position_valid)
+                    ++validPositionCount;
+            }
             mObjectDynamicStableMapView =
                 mObjectDynamicAdapter.ProcessFrame(objectSnapshot);
             cout << "[ObjectDynamicShadow] frame=" << mCurrentFrame.mnId
                  << " detections=" << objectSnapshot.detections.size()
+                 << " valid_3d=" << validPositionCount
+                 << " invalid_3d="
+                 << objectSnapshot.detections.size() - validPositionCount
                  << " active=" << mObjectDynamicStableMapView.active_objects.size()
                  << " dynamic=" << mObjectDynamicStableMapView.dynamic_objects.size()
                  << endl;

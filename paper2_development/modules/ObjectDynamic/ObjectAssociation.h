@@ -33,13 +33,15 @@ struct Detection
     BoundingBox2D bbox;
     double confidence;
     Vector3D position_3d;
+    bool position_valid;
 
     Detection();
     Detection(int class_id_value,
               const std::string &class_name_value,
               const BoundingBox2D &bbox_value,
               double confidence_value,
-              const Vector3D &position_3d_value);
+              const Vector3D &position_3d_value,
+              bool position_valid_value = true);
 };
 
 struct AssociationWeights

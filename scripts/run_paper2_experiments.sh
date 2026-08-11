@@ -20,8 +20,26 @@ readonly sequences=(
     "fr3_sitting_halfsphere"
 )
 
+selected_sequences=("${sequences[@]}")
+if [[ $# -gt 0 ]]; then
+    selected_sequences=("$@")
+    for requested_sequence in "${selected_sequences[@]}"; do
+        known=false
+        for sequence in "${sequences[@]}"; do
+            if [[ "${requested_sequence}" == "${sequence}" ]]; then
+                known=true
+                break
+            fi
+        done
+        if [[ "${known}" != true ]]; then
+            echo "Unknown Paper2 sequence: ${requested_sequence}" >&2
+            exit 2
+        fi
+    done
+fi
+
 configuration_valid=true
-for sequence in "${sequences[@]}"; do
+for sequence in "${selected_sequences[@]}"; do
     dataset_path="$(paper2_config_value "${config_file}" "${sequence}" "dataset_path")"
     association_path="$(paper2_config_value "${config_file}" "${sequence}" "association_path")"
     dataset_path="$(paper2_expand_path "${dataset_path}" "${project_root}")"
@@ -39,7 +57,7 @@ if [[ "${configuration_valid}" != true ]]; then
     exit 2
 fi
 
-for sequence in "${sequences[@]}"; do
+for sequence in "${selected_sequences[@]}"; do
     timestamp="$(date +%Y%m%d_%H%M%S)"
     sequence_root="${final_root}/${sequence}"
     run_name="${timestamp}"

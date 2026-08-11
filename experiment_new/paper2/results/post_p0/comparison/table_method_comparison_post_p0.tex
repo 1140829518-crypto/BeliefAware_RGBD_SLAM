@@ -1,0 +1,14 @@
+% Requires booktabs.
+\begin{table}[t]
+\centering
+\caption{Post-P0 ATE RMSE comparison (m)}
+\begin{tabular}{lrrrr}
+\toprule
+Sequence & ORB-SLAM2 & Paper1 & Shadow & Active \\
+\midrule
+walking\_xyz & 0.745552 & 0.751667 & \textbf{0.571050} & 0.598146 \\
+walking\_rpy & 1.121808 & 1.032188 & 0.882434 & \textbf{0.229810} \\
+walking\_halfsphere & \textbf{0.366398} & 0.478962 & 0.447759 & 0.426866 \\
+\bottomrule
+\end{tabular}
+\end{table}

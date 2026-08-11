@@ -32,6 +32,11 @@ ObjectSnapshot MakeSnapshot(std::uint64_t frame_id,
     return snapshot;
 }
 
+ObjectSnapshot MakeEmptySnapshot(std::uint64_t frame_id, double timestamp)
+{
+    return ObjectSnapshot(frame_id, timestamp, ObjectState::IdentityPose());
+}
+
 } // namespace
 
 int main()
@@ -84,5 +89,33 @@ int main()
     assert(!rejected.snapshot_accepted);
     assert(rejected.active_objects.size() == 1);
     assert(rejected.active_objects[0].GetObjectId() == object_id);
+
+    // 5. The online adapter enforces three matched recovery confirmations.
+    ObjectDynamicAdapter recovery_adapter(20);
+    StableMapView recovery_view = recovery_adapter.ProcessFrame(
+        MakeSnapshot(1, 1.0, 0.0));
+    const ObjectState::ObjectId recovery_id =
+        recovery_view.active_objects[0].GetObjectId();
+    recovery_view = recovery_adapter.ProcessFrame(MakeEmptySnapshot(2, 2.0));
+    assert(recovery_view.active_objects.empty());
+
+    recovery_view = recovery_adapter.ProcessFrame(MakeSnapshot(3, 3.0, 0.0));
+    assert(recovery_view.active_objects.empty());
+    assert(recovery_adapter.GetDynamicMapManager().GetRecoveryConfirmationCount(
+               recovery_id) == 1);
+    recovery_view = recovery_adapter.ProcessFrame(MakeSnapshot(4, 4.0, 0.0));
+    assert(recovery_view.active_objects.empty());
+    assert(recovery_adapter.GetDynamicMapManager().GetRecoveryConfirmationCount(
+               recovery_id) == 2);
+    recovery_view = recovery_adapter.ProcessFrame(MakeSnapshot(5, 5.0, 0.0));
+    assert(recovery_view.recovered_objects.size() == 1);
+    assert(recovery_view.recovered_objects[0].GetObjectId() == recovery_id);
+
+    // The next observation evaluates probability and can settle as Static.
+    recovery_view = recovery_adapter.ProcessFrame(MakeSnapshot(6, 6.0, 0.0));
+    assert(recovery_view.recovered_objects.empty());
+    assert(recovery_view.active_objects.size() == 1);
+    assert(recovery_view.active_objects[0].GetLifecycleState()
+           == ORB_SLAM2::Paper2::ObjectLifecycleState::Static);
     return 0;
 }

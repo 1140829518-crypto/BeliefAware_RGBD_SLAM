@@ -43,6 +43,18 @@ int main()
     assert(stationary.status == MotionEstimationStatus::Success);
     assert(Near(stationary.speed, 0.0));
     assert(stationary.motion_score < 1e-12);
+    assert(Near(stationary.updated_dynamic_probability, 0.56));
+
+    // A stationary person retains its semantic initialization prior but does
+    // not receive a per-frame semantic injection.
+    ObjectState stationary_second = MakeObject(1, Vector3D(1.0, 2.0, 3.0), 3.0);
+    assert(estimator.ApplyEstimate(stationary_current, stationary));
+    stationary_second.SetDynamicProbability(
+        stationary_current.GetDynamicProbability());
+    const MotionEstimate stationary_again = estimator.Estimate(
+        stationary_current, stationary_second);
+    assert(stationary_again.valid);
+    assert(Near(stationary_again.updated_dynamic_probability, 0.448));
 
     // 2. Consecutive one-metre-per-second motion remains stable.
     const ObjectState moving_previous = MakeObject(2, Vector3D(0.0, 0.0, 0.0), 1.0);
@@ -90,5 +102,13 @@ int main()
         moving_next, invalid_position);
     assert(!invalid_position_result.valid);
     assert(invalid_position_result.status == MotionEstimationStatus::InvalidPosition);
+
+    const ObjectState invalid_zero = ObjectState::Create(
+        2, 3, "person", BoundingBox2D(10.0, 10.0, 50.0, 90.0),
+        0.9, Vector3D(), 4.0, false);
+    const MotionEstimate invalid_zero_result = estimator.Estimate(
+        moving_next, invalid_zero);
+    assert(!invalid_zero_result.valid);
+    assert(invalid_zero_result.status == MotionEstimationStatus::InvalidPosition);
     return 0;
 }

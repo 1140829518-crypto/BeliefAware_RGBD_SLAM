@@ -14,11 +14,30 @@ paper2_development
 #include "ObjectDynamicAdapter.h"
 
 #include <cstddef>
+#include <iostream>
 
 namespace ORB_SLAM2
 {
 namespace Paper2
 {
+
+namespace
+{
+
+const char *LifecycleStateName(ObjectLifecycleState state)
+{
+    switch(state)
+    {
+        case ObjectLifecycleState::Static: return "Static";
+        case ObjectLifecycleState::PotentialDynamic: return "PotentialDynamic";
+        case ObjectLifecycleState::Dynamic: return "Dynamic";
+        case ObjectLifecycleState::Lost: return "Lost";
+        case ObjectLifecycleState::Recovered: return "Recovered";
+    }
+    return "Unknown";
+}
+
+} // namespace
 
 StableMapView::StableMapView()
     : frame_id(0), timestamp(0.0), snapshot_accepted(false)
@@ -55,10 +74,12 @@ StableMapView ObjectDynamicAdapter::ProcessFrame(const ObjectSnapshot &snapshot)
         const ObjectMatch &match = association_result.matches[index];
         ObjectState current = association_result.objects[index];
         const ObjectState &previous = previous_objects[match.previous_index];
+        const bool recovering_from_lost =
+            previous.GetLifecycleState() == ObjectLifecycleState::Lost;
 
         // ObjectAssociation marks a matched Lost object as Recovered immediately.
         // Restore Lost here so DynamicMapManager can enforce multi-frame recovery.
-        if(previous.GetLifecycleState() == ObjectLifecycleState::Lost)
+        if(recovering_from_lost)
             current.SetLifecycleState(ObjectLifecycleState::Lost);
 
         const MotionEstimate estimate = motion_estimator_.Estimate(previous, current);
@@ -66,8 +87,39 @@ StableMapView ObjectDynamicAdapter::ProcessFrame(const ObjectSnapshot &snapshot)
             motion_estimator_.ApplyEstimate(current, estimate);
 
         map_manager_.UpdateObject(current);
-        map_manager_.UpdateObjectState(current.GetObjectId(),
-                                       current.GetDynamicProbability(), true);
+        if(recovering_from_lost)
+        {
+            if(map_manager_.RecoverObject(current.GetObjectId()))
+            {
+                std::cout << "[ObjectDynamicRecovery] frame=" << snapshot.frame_id
+                          << " object_id=" << current.GetObjectId()
+                          << " confirmations="
+                          << map_manager_.GetRecoveryConfirmationFrames()
+                          << " state=Recovered" << std::endl;
+            }
+        }
+        else
+        {
+            map_manager_.UpdateObjectState(current.GetObjectId(),
+                                           current.GetDynamicProbability(), true);
+        }
+        ObjectState managed;
+        if(map_manager_.GetObject(current.GetObjectId(), &managed)
+           && managed.GetLifecycleState() != previous.GetLifecycleState())
+        {
+            std::cout << "[ObjectDynamicTransition] frame=" << snapshot.frame_id
+                      << " object_id=" << managed.GetObjectId()
+                      << " class_id=" << managed.GetClassId()
+                      << " from="
+                      << LifecycleStateName(previous.GetLifecycleState())
+                      << " to="
+                      << LifecycleStateName(managed.GetLifecycleState())
+                      << " position_valid=" << managed.IsPositionValid()
+                      << " motion_score="
+                      << (estimate.valid ? estimate.motion_score : 0.0)
+                      << " dynamic_probability="
+                      << managed.GetDynamicProbability() << std::endl;
+        }
         AssociateDetectionMapPoints(current.GetObjectId(), snapshot,
                                     match.detection_index);
     }
@@ -145,7 +197,8 @@ std::vector<Detection> ObjectDynamicAdapter::ConvertDetections(
         const SnapshotDetection &detection = snapshot.detections[index];
         result.push_back(Detection(detection.class_id, detection.class_name,
                                    detection.bbox, detection.confidence,
-                                   detection.position_3d));
+                                   detection.position_3d,
+                                   detection.position_valid));
     }
     return result;
 }

@@ -50,11 +50,18 @@ def read_tracking_time(run_log):
 
 
 def sequence_name(final_root, statistics_path):
+    run_log = statistics_path.with_name("run.log")
+    if run_log.is_file():
+        for line in run_log.read_text(
+            encoding="utf-8", errors="replace"
+        ).splitlines():
+            if line.startswith("sequence_name="):
+                return line.split("=", 1)[1].strip()
     relative = statistics_path.relative_to(final_root)
     return relative.parts[0] if relative.parts else "unknown"
 
 
-def collect_rows(final_root):
+def collect_rows(final_root, latest_per_sequence=False, selected_sequences=None):
     rows = []
     for statistics_path in sorted(final_root.rglob(STATISTICS_NAME)):
         frames = read_statistics(statistics_path)
@@ -74,8 +81,20 @@ def collect_rows(final_root):
                 "tracking_time": read_tracking_time(
                     statistics_path.with_name("run.log")
                 ),
+                "_mtime": statistics_path.stat().st_mtime,
             }
         )
+    if selected_sequences:
+        rows = [row for row in rows if row["sequence"] in selected_sequences]
+    if latest_per_sequence:
+        latest = {}
+        for row in rows:
+            sequence = row["sequence"]
+            if sequence not in latest or row["_mtime"] > latest[sequence]["_mtime"]:
+                latest[sequence] = row
+        rows = [latest[name] for name in sorted(latest)]
+    for row in rows:
+        row.pop("_mtime", None)
     return rows
 
 
@@ -87,11 +106,19 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--results", type=Path, default=default_final_root)
     parser.add_argument("--output", type=Path)
+    parser.add_argument(
+        "--latest-per-sequence",
+        action="store_true",
+        help="write only the newest run found for each sequence",
+    )
+    parser.add_argument("--sequences", nargs="+")
     args = parser.parse_args()
 
     final_root = args.results.resolve()
     output_path = (args.output or final_root / OUTPUT_NAME).resolve()
-    rows = collect_rows(final_root)
+    rows = collect_rows(
+        final_root, args.latest_per_sequence, set(args.sequences or [])
+    )
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
     fieldnames = [

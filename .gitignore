@@ -24,6 +24,8 @@ Thirdparty/g2o/lib/
 Vocabulary/ORBvoc.txt
 Vocabulary/*.tar.gz
 build/
+build_active/
+build_post_p0_*/
 doxygen/
 doc/
 *~

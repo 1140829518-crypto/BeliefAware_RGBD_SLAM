@@ -62,6 +62,10 @@ int main()
     assert(manager.GetRecoveredObjects().size() == 1);
     assert(manager.GetActiveObjects().size() == 1);
 
+    // A subsequent observation leaves Recovered according to probability.
+    assert(manager.UpdateObjectState(10, 0.4, true));
+    assert(GetState(manager, 10) == ObjectLifecycleState::PotentialDynamic);
+
     // A new miss clears recovery progress and returns the object to Lost.
     assert(manager.CheckTransition(10, false));
     assert(GetState(manager, 10) == ObjectLifecycleState::Lost);
