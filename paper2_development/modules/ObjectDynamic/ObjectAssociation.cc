@@ -23,7 +23,8 @@ namespace Paper2
 {
 
 Detection::Detection()
-    : class_id(-1), class_name("unknown"), bbox(), confidence(0.0), position_3d()
+    : class_id(-1), class_name("unknown"), bbox(), confidence(0.0), position_3d(),
+      position_valid(false)
 {
 }
 
@@ -31,12 +32,14 @@ Detection::Detection(int class_id_value,
                      const std::string &class_name_value,
                      const BoundingBox2D &bbox_value,
                      double confidence_value,
-                     const Vector3D &position_3d_value)
+                     const Vector3D &position_3d_value,
+                     bool position_valid_value)
     : class_id(class_id_value),
       class_name(class_name_value),
       bbox(bbox_value),
       confidence(confidence_value),
-      position_3d(position_3d_value)
+      position_3d(position_3d_value),
+      position_valid(position_valid_value)
 {
 }
 
@@ -83,11 +86,15 @@ double ObjectAssociation::ComputeAssociationCost(const ObjectState &object,
     const double iou_cost = 1.0 - IntersectionOverUnion(object.GetBoundingBox(), detection.bbox);
     const double spatial_cost = ClampUnit(
         CenterDistance(object.GetBoundingBox(), detection.bbox) / spatial_scale_);
-    const double distance_3d_cost = ClampUnit(
-        Distance3D(object.GetPosition(), detection.position_3d) / distance_3d_scale_);
+    const bool use_distance_3d = object.IsPositionValid() && detection.position_valid;
+    const double distance_3d_cost = use_distance_3d
+        ? ClampUnit(Distance3D(object.GetPosition(), detection.position_3d)
+                    / distance_3d_scale_)
+        : 0.0;
 
     const double weight_sum = weights_.semantic + weights_.iou
-                            + weights_.spatial + weights_.distance_3d;
+                            + weights_.spatial
+                            + (use_distance_3d ? weights_.distance_3d : 0.0);
     if(weight_sum <= 0.0)
         return std::numeric_limits<double>::infinity();
 
@@ -143,7 +150,8 @@ AssociationResult ObjectAssociation::AssociateObjects(
         const Detection &detection = current_detections[candidate.detection_index];
         updated.UpdateState(detection.class_id, detection.class_name,
                             detection.bbox, detection.confidence,
-                            detection.position_3d, timestamp);
+                            detection.position_3d, timestamp,
+                            detection.position_valid);
         if(updated.GetLifecycleState() == ObjectLifecycleState::Lost)
             updated.SetLifecycleState(ObjectLifecycleState::Recovered);
 
@@ -174,7 +182,8 @@ AssociationResult ObjectAssociation::AssociateObjects(
         result.unmatched_detection_indices.push_back(index);
         result.objects.push_back(ObjectState::Create(
             AllocateObjectId(), detection.class_id, detection.class_name,
-            detection.bbox, detection.confidence, detection.position_3d, timestamp));
+            detection.bbox, detection.confidence, detection.position_3d,
+            timestamp, detection.position_valid));
     }
 
     return result;

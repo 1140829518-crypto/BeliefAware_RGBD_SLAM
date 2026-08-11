@@ -48,6 +48,7 @@ ObjectState::ObjectState()
       bbox_(),
       confidence_(0.0),
       position_(),
+      position_valid_(false),
       pose_(IdentityPose()),
       velocity_(),
       motion_direction_(),
@@ -64,13 +65,15 @@ ObjectState::ObjectState(ObjectId object_id,
                          const BoundingBox2D &bbox,
                          double confidence,
                          const Vector3D &position,
-                         double timestamp)
+                         double timestamp,
+                         bool position_valid)
     : object_id_(object_id),
       class_id_(class_id),
       class_name_(class_name),
       bbox_(bbox),
       confidence_(ClampProbability(confidence)),
       position_(position),
+      position_valid_(position_valid),
       pose_(IdentityPose()),
       velocity_(),
       motion_direction_(),
@@ -94,10 +97,11 @@ ObjectState ObjectState::Create(ObjectId object_id,
                                 const BoundingBox2D &bbox,
                                 double confidence,
                                 const Vector3D &position,
-                                double timestamp)
+                                double timestamp,
+                                bool position_valid)
 {
     return ObjectState(object_id, class_id, class_name, bbox,
-                       confidence, position, timestamp);
+                       confidence, position, timestamp, position_valid);
 }
 
 void ObjectState::UpdateState(int class_id,
@@ -105,13 +109,15 @@ void ObjectState::UpdateState(int class_id,
                               const BoundingBox2D &bbox,
                               double confidence,
                               const Vector3D &position,
-                              double timestamp)
+                              double timestamp,
+                              bool position_valid)
 {
     class_id_ = class_id;
     class_name_ = class_name;
     bbox_ = bbox;
     confidence_ = ClampProbability(confidence);
     position_ = position;
+    position_valid_ = position_valid;
     timestamp_ = timestamp;
     ++observation_count_;
 
@@ -124,6 +130,7 @@ void ObjectState::UpdatePose(const PoseMatrix4d &pose)
 {
     pose_ = pose;
     position_ = Vector3D(pose_[3], pose_[7], pose_[11]);
+    position_valid_ = true;
 }
 
 void ObjectState::UpdateVelocity(const Vector3D &velocity)
@@ -172,6 +179,7 @@ const std::string &ObjectState::GetClassName() const { return class_name_; }
 const BoundingBox2D &ObjectState::GetBoundingBox() const { return bbox_; }
 double ObjectState::GetConfidence() const { return confidence_; }
 const Vector3D &ObjectState::GetPosition() const { return position_; }
+bool ObjectState::IsPositionValid() const { return position_valid_; }
 const PoseMatrix4d &ObjectState::GetPose() const { return pose_; }
 const Vector3D &ObjectState::GetVelocity() const { return velocity_; }
 const Vector3D &ObjectState::GetMotionDirection() const { return motion_direction_; }

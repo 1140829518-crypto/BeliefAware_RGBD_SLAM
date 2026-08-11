@@ -1,0 +1,7 @@
+sequence,method,tracked_frames,keyframes,detections,valid_3d,invalid_3d,dynamic_transitions,recovered_transitions,dynamic_object_frame_sum,filtered_mappoints,frames_with_filtering,tracking_gaps
+fr3_walking_xyz,shadow,827,317,4552,4341,211,2,32,20,0,0,0
+fr3_walking_rpy,shadow,548,235,2198,2044,154,2,34,20,0,0,2
+fr3_walking_halfsphere,shadow,1021,299,4781,4416,365,2,44,82,0,0,0
+fr3_walking_xyz,active,827,298,4552,4341,211,2,32,20,754,10,0
+fr3_walking_rpy,active,371,174,1388,1285,103,2,13,17,244,10,19
+fr3_walking_halfsphere,active,575,113,3311,3055,256,2,12,85,64,44,8

@@ -179,6 +179,10 @@ bool DynamicMapManager::CheckTransition(ObjectState::ObjectId object_id,
     {
         if(probability >= object_dynamic_threshold)
             object.SetLifecycleState(ObjectLifecycleState::Dynamic);
+        else if(probability <= static_threshold_)
+            object.SetLifecycleState(ObjectLifecycleState::Static);
+        else
+            object.SetLifecycleState(ObjectLifecycleState::PotentialDynamic);
     }
 
     recovery_confirmations_[object_id] = 0;

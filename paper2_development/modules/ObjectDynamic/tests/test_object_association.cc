@@ -1,6 +1,7 @@
 #include "ObjectAssociation.h"
 
 #include <cassert>
+#include <cmath>
 #include <vector>
 
 using ORB_SLAM2::Paper2::AssociationResult;
@@ -23,6 +24,22 @@ int main()
         0.95, Vector3D(1.1, 0.0, 2.0)));
 
     ObjectAssociation association(100);
+
+    // An invalid zero placeholder skips the 3D term, while a valid origin is
+    // a real position and contributes its actual distance. They are distinct.
+    const Detection invalid_zero(
+        3, "person", BoundingBox2D(10.0, 10.0, 50.0, 90.0),
+        0.95, Vector3D(), false);
+    const Detection valid_zero(
+        3, "person", BoundingBox2D(10.0, 10.0, 50.0, 90.0),
+        0.95, Vector3D(), true);
+    const double invalid_zero_cost = association.ComputeAssociationCost(
+        previous[0], invalid_zero);
+    const double valid_zero_cost = association.ComputeAssociationCost(
+        previous[0], valid_zero);
+    assert(std::fabs(invalid_zero_cost) < 1e-12);
+    assert(valid_zero_cost > invalid_zero_cost);
+
     AssociationResult first_result = association.AssociateObjects(previous, detections, 1.1);
 
     assert(first_result.matches.size() == 1);

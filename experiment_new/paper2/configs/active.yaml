@@ -1,0 +1,35 @@
+mode: "active"
+description: "Paper2 ObjectDynamic active MapPoint filtering experiments"
+compile_definitions:
+  ENABLE_OBJECT_DYNAMIC_SHADOW_MODE: 1
+  ENABLE_OBJECT_DYNAMIC_ACTIVE_MODE: 1
+required_log: "[ObjectDynamicActive]"
+results_path: "${PROJECT_ROOT}/experiment_new/paper2/results/active"
+
+defaults:
+  vocabulary_path: "${PROJECT_ROOT}/Vocabulary/ORBvoc.txt"
+  yaml_path: "${PROJECT_ROOT}/Examples/RGB-D/TUM3.yaml"
+  run_parameters:
+    repetitions: 1
+    save_log: true
+    save_camera_trajectory: true
+    save_keyframe_trajectory: true
+
+sequences:
+  fr3_walking_xyz:
+    dataset_path: "/home/djn/datasets/TUMRGBD/rgbd_dataset_freiburg3_walking_xyz"
+    association_path: "/home/djn/datasets/TUMRGBD/rgbd_dataset_freiburg3_walking_xyz/associate.txt"
+    yaml_path: "${PROJECT_ROOT}/Examples/RGB-D/TUM3.yaml"
+    run_parameters: "default"
+
+  fr3_walking_rpy:
+    dataset_path: "/home/djn/datasets/TUMRGBD/rgbd_dataset_freiburg3_walking_rpy"
+    association_path: "/home/djn/datasets/TUMRGBD/rgbd_dataset_freiburg3_walking_rpy/associations.txt"
+    yaml_path: "${PROJECT_ROOT}/Examples/RGB-D/TUM3.yaml"
+    run_parameters: "default"
+
+  fr3_walking_halfsphere:
+    dataset_path: "/home/djn/datasets/TUMRGBD/rgbd_dataset_freiburg3_walking_halfsphere"
+    association_path: "/home/djn/datasets/TUMRGBD/rgbd_dataset_freiburg3_walking_halfsphere/associate.txt"
+    yaml_path: "${PROJECT_ROOT}/Examples/RGB-D/TUM3.yaml"
+    run_parameters: "default"

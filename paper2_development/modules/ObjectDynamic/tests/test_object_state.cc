@@ -18,6 +18,7 @@ int main()
     assert(object.GetObjectId() == 42);
     assert(object.GetClassId() == 3);
     assert(object.GetObservationCount() == 1);
+    assert(object.IsPositionValid());
     assert(object.GetLifecycleState() == ObjectLifecycleState::PotentialDynamic);
 
     object.UpdateState(3, "person", BoundingBox2D(12.0, 20.0, 52.0, 100.0),
@@ -38,6 +39,12 @@ int main()
     pose[11] = 6.0;
     object.UpdatePose(pose);
     assert(std::fabs(object.GetPosition().z - 6.0) < 1e-12);
+    assert(object.IsPositionValid());
+
+    const ObjectState invalid_position = ObjectState::Create(
+        43, 3, "person", BoundingBox2D(10.0, 20.0, 50.0, 100.0),
+        0.90, Vector3D(), 1.0, false);
+    assert(!invalid_position.IsPositionValid());
 
     assert(object.AddMapPoint(100));
     assert(!object.AddMapPoint(100));
