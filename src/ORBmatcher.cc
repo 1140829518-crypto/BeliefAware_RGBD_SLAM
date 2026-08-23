@@ -40,6 +40,10 @@
 #include "Thirdparty/DBoW2/DBoW2/FeatureVector.h"
 
 #include<stdint.h>
+#include<cstdlib>
+#include<fstream>
+#include<mutex>
+#include<string>
 
 #include "Frame.h"
 
@@ -47,6 +51,46 @@ using namespace std;
 
 namespace ORB_SLAM2
 {
+
+namespace
+{
+void LogMapPointProjectionEvidence(const Frame &frame,
+                                   const MapPoint *mapPoint,
+                                   const float u,
+                                   const float v,
+                                   const int classId,
+                                   const bool dynamicHit,
+                                   const float score,
+                                   const float threshold)
+{
+    const char *path = std::getenv("ORB_SLAM2_MAPPOINT_PROJECTION_LOG");
+    if(!path || !path[0] || !mapPoint)
+        return;
+
+    static std::mutex logMutex;
+    static std::ofstream logFile;
+    static std::string openedPath;
+    std::unique_lock<std::mutex> lock(logMutex);
+    if(!logFile.is_open() || openedPath != path)
+    {
+        if(logFile.is_open())
+            logFile.close();
+        openedPath = path;
+        logFile.open(openedPath.c_str(), std::ios::out | std::ios::app);
+        if(logFile.tellp() == 0)
+            logFile << "frame_id,timestamp,map_point_id,u,v,class_id,semantic_state,"
+                       "temporal_state,temporal_score,threshold\n";
+    }
+    if(logFile.is_open())
+    {
+        const bool temporalState = score >= threshold;
+        logFile << frame.mnId << ',' << frame.mTimeStamp << ',' << mapPoint->mnId << ','
+                << u << ',' << v << ',' << classId << ','
+                << (dynamicHit ? 1 : 0) << ',' << (temporalState ? 1 : 0) << ','
+                << score << ',' << threshold << '\n';
+    }
+}
+}
 
 // 要用到的一些阈值
 const int ORBmatcher::TH_HIGH = 100;
@@ -75,6 +119,36 @@ ORBmatcher::ORBmatcher(float nnratio, bool checkOri): mfNNratio(nnratio), mbChec
 int ORBmatcher::SearchByProjection(Frame &F, const vector<MapPoint*> &vpMapPoints, const float th)
 {
     int nmatches=0;
+
+// ===== P4 tracking MapPoint数量日志 =====
+const char *countPath = std::getenv("ORB_SLAM2_TRACKING_MPOINT_LOG");
+
+if(countPath && countPath[0])
+{
+    static std::mutex countMutex;
+    static std::ofstream countFile;
+
+    std::unique_lock<std::mutex> lock(countMutex);
+
+    if(!countFile.is_open())
+    {
+        countFile.open(countPath, std::ios::out | std::ios::app);
+
+        countFile << "frame_id,mappoint_count\n";
+    }
+
+    if(countFile.is_open())
+    {
+        countFile 
+        << F.mnId << ","
+        << vpMapPoints.size()
+        << "\n";
+    }
+}
+// ===== end P4 log =====
+
+
+
 
     // 如果 th！=1 (RGBD 相机或者刚刚进行过重定位), 需要扩大范围搜索
     const bool bFactor = th!=1.0;
@@ -112,7 +186,11 @@ int ORBmatcher::SearchByProjection(Frame &F, const vector<MapPoint*> &vpMapPoint
                                  ? F.objects_cur_[dynamic_box_id]->ndetect_class
                                  : -1;
         const float semanticDynamicScore = pMP->UpdateSemanticDynamicScore(bInDynamicBox, F.mnId, dynamicClassId);
-        if(semanticDynamicScore >= SemanticConfig::DynamicScoreThresholdForClass(dynamicClassId))
+        const float semanticDynamicThreshold = SemanticConfig::DynamicScoreThresholdForClass(dynamicClassId);
+        LogMapPointProjectionEvidence(F, pMP, pMP->mTrackProjX, pMP->mTrackProjY,
+                                      dynamicClassId, bInDynamicBox,
+                                      semanticDynamicScore, semanticDynamicThreshold);
+        if(semanticDynamicScore >= semanticDynamicThreshold)
             continue;
 
         // Step 3 通过投影点以及搜索窗口和预测的尺度进行搜索, 找出搜索半径内的候选匹配点索引
@@ -1791,7 +1869,11 @@ int ORBmatcher::SearchByProjection(Frame &CurrentFrame, const Frame &LastFrame, 
                                          ? CurrentFrame.objects_cur_[dynamic_box_id]->ndetect_class
                                          : -1;
                 const float semanticDynamicScore = pMP->UpdateSemanticDynamicScore(bInDynamicBox, CurrentFrame.mnId, dynamicClassId);
-                if(semanticDynamicScore >= SemanticConfig::DynamicScoreThresholdForClass(dynamicClassId))
+                const float semanticDynamicThreshold = SemanticConfig::DynamicScoreThresholdForClass(dynamicClassId);
+                LogMapPointProjectionEvidence(CurrentFrame, pMP, u, v,
+                                              dynamicClassId, bInDynamicBox,
+                                              semanticDynamicScore, semanticDynamicThreshold);
+                if(semanticDynamicScore >= semanticDynamicThreshold)
                     continue;
 
                 // 认为投影前后地图点的尺度信息不变
@@ -1981,7 +2063,11 @@ int ORBmatcher::SearchByProjection(Frame &CurrentFrame, KeyFrame *pKF, const set
                                          ? CurrentFrame.objects_cur_[dynamic_box_id]->ndetect_class
                                          : -1;
                 const float semanticDynamicScore = pMP->UpdateSemanticDynamicScore(bInDynamicBox, CurrentFrame.mnId, dynamicClassId);
-                if(semanticDynamicScore >= SemanticConfig::DynamicScoreThresholdForClass(dynamicClassId))
+                const float semanticDynamicThreshold = SemanticConfig::DynamicScoreThresholdForClass(dynamicClassId);
+                LogMapPointProjectionEvidence(CurrentFrame, pMP, u, v,
+                                              dynamicClassId, bInDynamicBox,
+                                              semanticDynamicScore, semanticDynamicThreshold);
+                if(semanticDynamicScore >= semanticDynamicThreshold)
                     continue;
 
                 // Compute predicted scale level

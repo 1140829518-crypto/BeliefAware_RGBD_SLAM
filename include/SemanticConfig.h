@@ -1,3 +1,4 @@
+
 /**
  * Semantic configuration for dynamic-point management and object mapping.
  * Semantic Dynamic RGB-D SLAM shared parameters.
@@ -55,9 +56,9 @@ static const float kDynamicScoreDecay = 0.95f;
 // Semantic Dynamic Probability Accumulation:
 // person 类作为最强动态目标，采用更激进的评分与衰减策略，
 // 让动态抑制更快收敛，从而尽量优先保证 Tracking 的几何纯净度。
-static const float kPersonDynamicScoreThreshold = 1.0f;
-static const float kPersonDynamicScoreIncrement = 3.0f;
-static const float kPersonDynamicScoreDecay = 0.85f;
+static const float kPersonDynamicScoreThreshold = 2.0f;
+static const float kPersonDynamicScoreIncrement = 1.0f;
+static const float kPersonDynamicScoreDecay = 0.90f;
 static const float kObjectAssociationDistance = 0.65f;
 
 inline float EnvFloat(const char *name, const float fallback)
