@@ -23,10 +23,49 @@
 #include "SemanticConfig.h"
 
 #include <cmath>
+#include <cstdlib>
+#include <fstream>
 #include<mutex>
 
 namespace ORB_SLAM2
 {
+
+namespace
+{
+void LogSemanticDynamicEvidence(const long unsigned int frameId,
+                                const long unsigned int mapPointId,
+                                const int classId,
+                                const bool dynamicHit,
+                                const float score,
+                                const bool suppressed)
+{
+    const char *path = std::getenv("ORB_SLAM2_MAPPOINT_EVIDENCE_LOG");
+    if(!path || !path[0])
+        return;
+
+    static std::mutex logMutex;
+    static std::ofstream logFile;
+    static std::string openedPath;
+    std::unique_lock<std::mutex> lock(logMutex);
+    if(!logFile.is_open() || openedPath != path)
+    {
+        if(logFile.is_open())
+            logFile.close();
+        openedPath = path;
+        logFile.open(openedPath.c_str(), std::ios::out | std::ios::app);
+        if(logFile.tellp() == 0)
+            logFile << "frame_id,map_point_id,class_id,dynamic_hit,dynamic_score,dynamic_state,suppressed\n";
+    }
+    if(logFile.is_open())
+    {
+        const bool dynamicState = SemanticConfig::UseDynamicAccumulation()
+                                ? suppressed : dynamicHit;
+        logFile << frameId << ',' << mapPointId << ',' << classId << ','
+                << (dynamicHit ? 1 : 0) << ',' << score << ','
+                << (dynamicState ? 1 : 0) << ',' << (suppressed ? 1 : 0) << '\n';
+    }
+}
+}
 
 long unsigned int MapPoint::nNextId=0;
 mutex MapPoint::mGlobalMutex;
@@ -371,7 +410,11 @@ float MapPoint::UpdateSemanticDynamicScore(const bool &bDynamicHit,
                                            const int &classId)
 {
     if(!SemanticConfig::UseDynamicAccumulation())
+    {
+        LogSemanticDynamicEvidence(frameId, mnId, classId, bDynamicHit,
+                                   mfSemanticDynamicScore, false);
         return mfSemanticDynamicScore;
+    }
 
     unique_lock<mutex> lock(mMutexFeatures);
     if(mbBad)
@@ -395,6 +438,9 @@ float MapPoint::UpdateSemanticDynamicScore(const bool &bDynamicHit,
         mfSemanticDynamicScore = 0.0f;
 
     mnSemanticDynamicLastFrame = frameId;
+    const bool suppressed = mfSemanticDynamicScore >= SemanticConfig::DynamicScoreThresholdForClass(classId);
+    LogSemanticDynamicEvidence(frameId, mnId, classId, bDynamicHit,
+                               mfSemanticDynamicScore, suppressed);
     return mfSemanticDynamicScore;
 }
 
