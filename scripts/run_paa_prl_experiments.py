@@ -36,7 +36,8 @@ def build_variant(variant: str, root: Path, jobs: int) -> Dict[str, object]:
     log.parent.mkdir(parents=True, exist_ok=True)
     commands = [
         ["cmake", "-S", str(REPO), "-B", str(build_dir), f"-DCMAKE_CXX_FLAGS={flags}"],
-        ["cmake", "--build", str(build_dir), f"-j{jobs}", "--target", "rgbd_tum"],
+        ["cmake", "--build", str(build_dir), "--clean-first", f"-j{jobs}",
+         "--target", "rgbd_tum"],
     ]
     with log.open("w", encoding="utf-8") as stream:
         for command in commands:
@@ -54,10 +55,12 @@ def build_variant(variant: str, root: Path, jobs: int) -> Dict[str, object]:
     return result
 
 
-def next_attempt(run_dir: Path, retry_failed: bool) -> Path | None:
+def next_attempt(run_dir: Path, retry_failed: bool, force_new_attempt: bool) -> Path | None:
     attempts = sorted(path for path in run_dir.glob("attempt_*") if path.is_dir())
     if not attempts:
         return run_dir / "attempt_01"
+    if force_new_attempt:
+        return run_dir / f"attempt_{len(attempts) + 1:02d}"
     for attempt in attempts:
         status = attempt / "status.json"
         if status.exists() and json.loads(status.read_text()).get("status") == "success":
@@ -79,9 +82,10 @@ def validate_input(sequence: str) -> tuple[Path, Path]:
 
 
 def run_attempt(root: Path, configuration: str, sequence: str, run_id: int,
-                device: str, build_info: Dict[str, object], retry_failed: bool) -> None:
+                device: str, build_info: Dict[str, object], retry_failed: bool,
+                force_new_attempt: bool) -> None:
     run_dir = root / configuration / sequence / f"run_{run_id:02d}"
-    attempt = next_attempt(run_dir, retry_failed)
+    attempt = next_attempt(run_dir, retry_failed, force_new_attempt)
     if attempt is None:
         print(f"SKIP preserved run: {run_dir}", flush=True)
         return
@@ -105,8 +109,8 @@ def run_attempt(root: Path, configuration: str, sequence: str, run_id: int,
         "git_commit": git_output("rev-parse", "HEAD"),
         "git_status_short": git_output("status", "--short"),
         "semantic_defaults_parsed": defaults, "parameter_overrides": {},
-        "runtime_instrumentation_status": "legacy aggregate only; component timing pending",
-        "runtime_warmup_excluded_frames_actual": 0,
+        "runtime_instrumentation_status": "component timing expected; verified after run",
+        "runtime_warmup_excluded_frames_actual": None,
         "runtime_warmup_excluded_frames_required": 30,
         "trajectory_evaluation_scope": "all frames; runtime warm-up never removes trajectory frames",
         "build": build_info,
@@ -139,13 +143,20 @@ def run_attempt(root: Path, configuration: str, sequence: str, run_id: int,
     trajectory = attempt / "CameraTrajectory.txt"
     metrics = attempt / "eval/metrics.json"
     success = process.returncode == 0 and trajectory.exists() and trajectory.stat().st_size > 0 and metrics.exists()
+    runtime_summary = attempt / "runtime_summary.csv"
+    runtime_breakdown = attempt / "runtime_breakdown.csv"
+    timing_complete = runtime_summary.exists() and runtime_breakdown.exists()
     status = {"status": "success" if success else "failed", "return_code": process.returncode,
               "finished_at": now(), "wall_time_seconds": elapsed,
               "trajectory_exists": trajectory.exists(), "metrics_exists": metrics.exists(),
-              "failure_preserved": not success}
+              "failure_preserved": not success,
+              "runtime_component_reports_exist": timing_complete}
     write_json(attempt / "status.json", status)
     config.update({"finished_at": status["finished_at"], "return_code": process.returncode,
-                   "status": status["status"], "wall_time_seconds": elapsed})
+                   "status": status["status"], "wall_time_seconds": elapsed,
+                   "runtime_instrumentation_status":
+                       "component timing available" if timing_complete else "component timing missing",
+                   "runtime_warmup_excluded_frames_actual": 30 if timing_complete else 0})
     write_json(attempt / "run_config.json", config)
     try:
         socket_path.unlink()
@@ -167,6 +178,8 @@ def main() -> None:
     parser.add_argument("--build-only", action="store_true")
     parser.add_argument("--no-build", action="store_true")
     parser.add_argument("--retry-failed", action="store_true")
+    parser.add_argument("--force-new-attempt", action="store_true",
+                        help="Append an audited attempt even when a success exists; never overwrites.")
     args = parser.parse_args()
     if args.runs < 1:
         parser.error("--runs must be positive")
@@ -180,8 +193,8 @@ def main() -> None:
                    "host": platform.node(), "platform": platform.platform(),
                    "python": sys.version, "configurations": CONFIGURATION_SPECS,
                    "semantic_defaults_parsed": parse_semantic_defaults(),
-                   "runtime_instrumentation_status": "legacy aggregate only; component timing pending",
-                   "runtime_warmup_excluded_frames_actual": 0,
+                   "runtime_instrumentation_status": "component timing enabled in rgbd_tum",
+                   "runtime_warmup_excluded_frames_actual": 30,
                    "runtime_warmup_excluded_frames_required": 30}
     write_json(root / "metadata/experiment_environment.json", environment)
 
@@ -213,7 +226,7 @@ def main() -> None:
             for sequence in sequences:
                 for run_id in range(1, args.runs + 1):
                     run_attempt(root, configuration, sequence, run_id, args.device,
-                                build_info, args.retry_failed)
+                                build_info, args.retry_failed, args.force_new_attempt)
 
 
 if __name__ == "__main__":

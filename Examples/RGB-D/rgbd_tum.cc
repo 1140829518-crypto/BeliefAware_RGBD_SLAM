@@ -46,6 +46,7 @@
 #include "Frame.h"//zt2 
 #include "Object.h"//zt3
 #include "SemanticConfig.h"
+#include "ExperimentTiming.h"
 
 //for socket//zt4
 #include <sys/types.h>
@@ -178,11 +179,15 @@ LoadImages(strAssociationFilename, vstrImageFilenamesRGB, vstrImageFilenamesD, v
     // Main loop
     cv::Mat imRGB, imD;
     vector<std::pair<vector<double>, int>> detect_result,detect_result_test2;
+    ORB_SLAM2::ExperimentTiming::Reset(nImages, 30);
     //对图像序列中的每张图像展开遍历
     // Object obj;
     
     for(int ni=0; ni<nImages; ni++)
     {
+        ORB_SLAM2::ExperimentTiming::SetCurrentFrame(ni);
+        const std::chrono::steady_clock::time_point end_to_end_start =
+            std::chrono::steady_clock::now();
         //****
         // string strPathToDetectionResult = argv[5] + std::to_string(vTimestamps[ni]) + ".txt";//读取detect_result
         // LoadBoundingBox(strPathToDetectionResult, detect_result);
@@ -222,6 +227,8 @@ LoadImages(strAssociationFilename, vstrImageFilenamesRGB, vstrImageFilenamesD, v
             cout << "[RGBD_TUM] frame " << ni << "/" << nImages << endl;
         if(sockfd >= 0)
         {
+            ORB_SLAM2::ScopedExperimentTimer semantic_timing(
+                ORB_SLAM2::TimingComponent::SemanticDetection);
             const char send_buf[] = "ok";
             if(write(sockfd, send_buf, strlen(send_buf)) == -1)
             {
@@ -233,7 +240,11 @@ LoadImages(strAssociationFilename, vstrImageFilenamesRGB, vstrImageFilenamesD, v
         else
             detect_result.clear();
         // sleep(0.5);
-        SLAM.TrackRGBD(imRGB,imD,tframe,detect_result);
+        {
+            ORB_SLAM2::ScopedExperimentTimer tracking_timing(
+                ORB_SLAM2::TimingComponent::TrackingTotal);
+            SLAM.TrackRGBD(imRGB,imD,tframe,detect_result);
+        }
         // ✅ 保存过滤后的彩色图像 + 特征点 + 检测框（第100帧）zt为了保存图片加入
         if (ni == 100)
         {
@@ -284,6 +295,10 @@ LoadImages(strAssociationFilename, vstrImageFilenamesRGB, vstrImageFilenamesD, v
 
         //! 计算耗时
         double ttrack= std::chrono::duration_cast<std::chrono::duration<double> >(t2 - t1).count();
+        ORB_SLAM2::ExperimentTiming::Add(
+            ORB_SLAM2::TimingComponent::EndToEndFrame,
+            std::chrono::duration_cast<std::chrono::duration<double> >(
+                t2 - end_to_end_start).count());
 
         vTimesTrack[ni]=ttrack;
 
@@ -322,6 +337,8 @@ LoadImages(strAssociationFilename, vstrImageFilenamesRGB, vstrImageFilenamesD, v
     const std::string out_dir = out_dir_env ? out_dir_env : std::string("TUM_trajectory_results");
     const std::string mkdir_cmd = std::string("mkdir -p ") + out_dir;
     system(mkdir_cmd.c_str());
+    if(!ORB_SLAM2::ExperimentTiming::WriteReports(out_dir))
+        cerr << "Failed to write runtime timing reports to: " << out_dir << endl;
     SLAM.SaveTrajectoryTUM(out_dir + "/CameraTrajectory.txt");
     SLAM.SaveKeyFrameTrajectoryTUM(out_dir + "/KeyFrameTrajectory.txt");
     if(ORB_SLAM2::SemanticConfig::UseObjectSemanticMap())

@@ -71,6 +71,7 @@ src/Initializer.cc
 src/Viewer.cc
 src/Object.cpp
 src/SemanticObject.cc
+src/ExperimentTiming.cc
 )
 
 target_link_libraries(${PROJECT_NAME}
