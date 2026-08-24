@@ -56,6 +56,22 @@ def runtime_values(path: Path) -> Dict[str, float]:
     return values
 
 
+def runtime_breakdown(path: Path) -> Dict[str, float]:
+    values: Dict[str, float] = {}
+    if not path.exists() or not path.stat().st_size:
+        return values
+    with path.open(newline="", encoding="utf-8-sig") as stream:
+        for row in csv.DictReader(stream):
+            component = row.get("component", "")
+            if not component:
+                continue
+            values[f"{component}_mean_seconds_steady"] = number(
+                row.get("mean_seconds_steady"))
+            values[f"{component}_fps_steady"] = number(row.get("fps_steady"))
+            values[f"{component}_count_steady"] = number(row.get("count_steady"))
+    return values
+
+
 def read_attempt(attempt: Path) -> Dict[str, object]:
     config = json.loads((attempt / "run_config.json").read_text())
     status_path = attempt / "status.json"
@@ -75,6 +91,7 @@ def read_attempt(attempt: Path) -> Dict[str, object]:
     else:
         switches, opportunities, sf = switching_frequency(attempt / "mappoint_evidence_raw.csv")
     runtime = runtime_values(attempt / "runtime.txt")
+    components = runtime_breakdown(attempt / "runtime_summary.csv")
     wall = number(status.get("wall_time_seconds", config.get("wall_time_seconds")))
     end_fps = total / wall if total and math.isfinite(wall) and wall > 0 else math.nan
     process_success = status.get("status") == "success"
@@ -95,8 +112,24 @@ def read_attempt(attempt: Path) -> Dict[str, object]:
         "RPE_translation_RMSE": number(rpe_t.get("rmse")),
         "RPE_rotation_RMSE_deg": number(rpe_r.get("rmse")),
         "MapPoint_state_switches": switches, "MapPoint_transition_opportunities": opportunities,
-        "SF": sf, "Tracking_time_per_frame": number(runtime.get("mean_tracking_time")),
-        "Tracking_FPS": number(runtime.get("fps")), "EndToEnd_FPS": end_fps,
+        "SF": sf,
+        "Tracking_time_per_frame": number(
+            components.get("tracking_total_mean_seconds_steady"),
+            number(runtime.get("mean_tracking_time"))),
+        "Semantic_detection_time_per_frame": number(
+            components.get("semantic_detection_mean_seconds_steady")),
+        "Temporal_evidence_update_time_per_frame": number(
+            components.get("temporal_evidence_update_mean_seconds_steady")),
+        "ObjectDynamic_Adapter_time_per_frame": number(
+            components.get("objectdynamic_adapter_mean_seconds_steady")),
+        "DynamicMapFilter_time_per_frame": number(
+            components.get("dynamic_map_filter_mean_seconds_steady")),
+        "Tracking_FPS": number(components.get("tracking_total_fps_steady"),
+                               number(runtime.get("fps"))),
+        "EndToEnd_FPS": number(components.get("end_to_end_frame_fps_steady"), end_fps),
+        "runtime_steady_frame_count": number(
+            components.get("end_to_end_frame_count_steady")),
+        "runtime_component_reports_exist": int(bool(components)),
         "wall_time_seconds": wall, "has_legal_evaluation": int(legal),
         "git_commit": config.get("git_commit", ""), "run_dir": str(attempt),
     }
@@ -121,12 +154,15 @@ def write_csv(path: Path, rows: List[Dict[str, object]]) -> None:
 
 def aggregate(rows: List[Dict[str, object]]) -> List[Dict[str, object]]:
     result = []
-    primary = [row for row in rows if row["is_primary_attempt"]]
+    selected = [row for row in rows if row.get("is_selected_attempt")]
     metrics = ("ATE_RMSE", "RPE_translation_RMSE", "RPE_rotation_RMSE_deg", "TSR", "PMR",
-               "tracking_gap_episodes", "SF", "Tracking_time_per_frame", "Tracking_FPS",
-               "EndToEnd_FPS")
+               "tracking_gap_episodes", "SF", "Tracking_time_per_frame",
+               "Semantic_detection_time_per_frame",
+               "Temporal_evidence_update_time_per_frame",
+               "ObjectDynamic_Adapter_time_per_frame",
+               "DynamicMapFilter_time_per_frame", "Tracking_FPS", "EndToEnd_FPS")
     groups: Dict[tuple[str, str], List[Dict[str, object]]] = defaultdict(list)
-    for row in primary:
+    for row in selected:
         groups[(str(row["configuration"]), str(row["sequence"]))].append(row)
     for configuration in CONFIGURATIONS:
         for (group_configuration, sequence), group in sorted(groups.items()):
@@ -157,6 +193,14 @@ def main() -> None:
     root = args.root.resolve()
     attempts = sorted(path.parent for path in root.glob("*/*/run_*/attempt_*/run_config.json"))
     rows = [read_attempt(attempt) for attempt in attempts]
+    run_groups: Dict[tuple[str, str, str], List[Dict[str, object]]] = defaultdict(list)
+    for row in rows:
+        run_groups[(str(row["configuration"]), str(row["sequence"]), str(row["run_id"]))].append(row)
+    for group in run_groups.values():
+        successful = [row for row in group if row["process_status"] == "success"]
+        chosen = successful[-1] if successful else group[-1]
+        for row in group:
+            row["is_selected_attempt"] = int(row is chosen)
     summaries = aggregate(rows)
     write_csv(root / "summary/all_attempts.csv", rows)
     write_csv(root / "summary/configuration_sequence_summary.csv", summaries)

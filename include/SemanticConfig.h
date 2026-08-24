@@ -90,13 +90,23 @@ inline float DynamicScoreThresholdForClass(const int classId)
 
 inline float DynamicScoreIncrementForClass(const int classId)
 {
-    return IsPersonClass(classId) ? kPersonDynamicScoreIncrement : kDynamicScoreIncrement;
+    const float fallback = IsPersonClass(classId) ? kPersonDynamicScoreIncrement : kDynamicScoreIncrement;
+    const char *specificName = IsPersonClass(classId)
+                               ? "ORB_SLAM2_PERSON_DYNAMIC_INCREMENT"
+                               : "ORB_SLAM2_DYNAMIC_INCREMENT";
+    float increment = EnvFloat(specificName, fallback);
+    if(increment < 0.0f)
+        increment = 0.0f;
+    return increment;
 }
 
 inline float DynamicScoreDecayForClass(const int classId)
 {
     const float defaultDecay = IsPersonClass(classId) ? kPersonDynamicScoreDecay : kDynamicScoreDecay;
-    float decay = EnvFloat("ORB_SLAM2_DYNAMIC_LAMBDA", defaultDecay);
+    const char *specificName = IsPersonClass(classId)
+                               ? "ORB_SLAM2_PERSON_DYNAMIC_LAMBDA"
+                               : "ORB_SLAM2_DYNAMIC_LAMBDA";
+    float decay = EnvFloat(specificName, defaultDecay);
     if(decay < 0.0f)
         decay = 0.0f;
     if(decay > 0.999f)

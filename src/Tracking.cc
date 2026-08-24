@@ -31,6 +31,7 @@
 
 
 #include "Tracking.h"
+#include "ExperimentTiming.h"
 #include <opencv2/core/core.hpp>
 #include <opencv2/features2d/features2d.hpp>
 
@@ -896,8 +897,11 @@ void Tracking::Track()
                 if(objectSnapshot.detections[detectionIndex].position_valid)
                     ++validPositionCount;
             }
-            mObjectDynamicStableMapView =
-                mObjectDynamicAdapter.ProcessFrame(objectSnapshot);
+            {
+                ScopedExperimentTimer timing(TimingComponent::ObjectDynamicAdapter);
+                mObjectDynamicStableMapView =
+                    mObjectDynamicAdapter.ProcessFrame(objectSnapshot);
+            }
             cout << "[ObjectDynamicShadow] frame=" << mCurrentFrame.mnId
                  << " detections=" << objectSnapshot.detections.size()
                  << " valid_3d=" << validPositionCount
@@ -909,6 +913,7 @@ void Tracking::Track()
 #if ENABLE_OBJECT_DYNAMIC_ACTIVE_MODE
             if(mObjectDynamicStableMapView.snapshot_accepted)
             {
+                ScopedExperimentTimer timing(TimingComponent::DynamicMapFilter);
                 mDynamicMapFilter.UpdateMapView(mObjectDynamicStableMapView);
                 mDynamicMapFilter.ClearExpiredPoints();
             }
@@ -1750,6 +1755,7 @@ std::size_t Tracking::CountCurrentFrameMapPoints() const
 
 std::size_t Tracking::FilterCurrentFrameDynamicMapPoints()
 {
+    ScopedExperimentTimer timing(TimingComponent::DynamicMapFilter);
     std::size_t filtered = 0;
     for(std::vector<MapPoint*>::iterator current =
             mCurrentFrame.mvpMapPoints.begin();
@@ -1770,6 +1776,7 @@ std::size_t Tracking::FilterCurrentFrameDynamicMapPoints()
 
 std::size_t Tracking::FilterLocalDynamicMapPoints()
 {
+    ScopedExperimentTimer timing(TimingComponent::DynamicMapFilter);
     std::size_t filtered = 0;
     std::vector<MapPoint*>::iterator output = mvpLocalMapPoints.begin();
     for(std::vector<MapPoint*>::iterator current = mvpLocalMapPoints.begin();

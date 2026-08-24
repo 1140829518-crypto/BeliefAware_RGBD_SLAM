@@ -19,6 +19,7 @@
 */
 
 #include "MapPoint.h"
+#include "ExperimentTiming.h"
 #include "ORBmatcher.h"
 #include "SemanticConfig.h"
 
@@ -415,6 +416,8 @@ float MapPoint::UpdateSemanticDynamicScore(const bool &bDynamicHit,
                                    mfSemanticDynamicScore, false);
         return mfSemanticDynamicScore;
     }
+
+    ScopedExperimentTimer timing(TimingComponent::TemporalEvidenceUpdate);
 
     unique_lock<mutex> lock(mMutexFeatures);
     if(mbBad)

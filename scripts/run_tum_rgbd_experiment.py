@@ -97,6 +97,9 @@ def main() -> None:
     parser.add_argument("--dynamic-lambda", type=float, default=None)
     parser.add_argument("--dynamic-theta", type=float, default=None)
     parser.add_argument("--person-dynamic-theta", type=float, default=None)
+    parser.add_argument("--dynamic-increment", type=float, default=None)
+    parser.add_argument("--person-dynamic-increment", type=float, default=None)
+    parser.add_argument("--person-dynamic-lambda", type=float, default=None)
     args = parser.parse_args()
 
     method_mode = {
@@ -120,6 +123,12 @@ def main() -> None:
         env["ORB_SLAM2_DYNAMIC_THETA"] = str(args.dynamic_theta)
     if args.person_dynamic_theta is not None:
         env["ORB_SLAM2_PERSON_DYNAMIC_THETA"] = str(args.person_dynamic_theta)
+    if args.dynamic_increment is not None:
+        env["ORB_SLAM2_DYNAMIC_INCREMENT"] = str(args.dynamic_increment)
+    if args.person_dynamic_increment is not None:
+        env["ORB_SLAM2_PERSON_DYNAMIC_INCREMENT"] = str(args.person_dynamic_increment)
+    if args.person_dynamic_lambda is not None:
+        env["ORB_SLAM2_PERSON_DYNAMIC_LAMBDA"] = str(args.person_dynamic_lambda)
 
     yolo_proc: subprocess.Popen | None = None
     yolo_log = args.out_dir / "yolo.log"
