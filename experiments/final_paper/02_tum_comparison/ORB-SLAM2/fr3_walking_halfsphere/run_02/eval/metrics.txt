@@ -1,0 +1,8 @@
+matches: 809
+ATE RMSE [m]: 0.730543
+ATE mean [m]: 0.623579
+ATE median [m]: 0.591950
+RPE trans RMSE [m]: 0.046509
+RPE trans mean [m]: 0.022344
+RPE rot RMSE [deg]: 1.027446
+RPE rot mean [deg]: 0.570822

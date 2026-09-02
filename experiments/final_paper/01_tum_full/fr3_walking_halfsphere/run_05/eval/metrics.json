@@ -1,0 +1,30 @@
+{
+  "gt": "/home/djn/datasets/TUMRGBD/rgbd_dataset_freiburg3_walking_halfsphere/groundtruth.txt",
+  "est": "/home/djn/123/ORB_SLAM2_AddSemantic/experiments/final_paper/01_tum_full/fr3_walking_halfsphere/run_05/CameraTrajectory.txt",
+  "matches": 965,
+  "max_timestamp_diff": 0.02,
+  "ate": {
+    "rmse": 0.6854521671064243,
+    "mean": 0.6645016353438715,
+    "median": 0.6652487372633542,
+    "std": 0.16817327378693045,
+    "min": 0.13189157575193494,
+    "max": 1.4060633044536885
+  },
+  "rpe_trans": {
+    "rmse": 0.0287247183686169,
+    "mean": 0.01650067101101354,
+    "median": 0.01144780324388145,
+    "std": 0.023512492457046206,
+    "min": 0.0006659709913836488,
+    "max": 0.5789120936314273
+  },
+  "rpe_rot_deg": {
+    "rmse": 0.7024175246090815,
+    "mean": 0.45841244862630204,
+    "median": 0.3620542600035831,
+    "std": 0.532210865937917,
+    "min": 0.023574593991730564,
+    "max": 13.029064637030167
+  }
+}

@@ -1,0 +1,4 @@
+[ZoneTransfer]
+ZoneId=3
+ReferrerUrl=https://github.com/facebookresearch/segment-anything
+HostUrl=https://codeload.github.com/facebookresearch/segment-anything/zip/refs/heads/main

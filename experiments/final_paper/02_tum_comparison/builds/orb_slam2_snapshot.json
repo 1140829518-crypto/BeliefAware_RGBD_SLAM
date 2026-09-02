@@ -1,0 +1,21 @@
+{
+  "method": "ORB-SLAM2",
+  "semantic_mode": 0,
+  "shadow": 0,
+  "active": 0,
+  "flags": "-DENABLE_OBJECT_DYNAMIC_SHADOW_MODE=0 -DENABLE_OBJECT_DYNAMIC_ACTIVE_MODE=0",
+  "binary": {
+    "path": "/home/djn/123/ORB_SLAM2_AddSemantic/Examples/RGB-D/rgbd_tum",
+    "sha256": "58e463c75c25fc2c3268bb9bd053f8084d0736a6b45a0bb5ddf5b855d1e1373c"
+  },
+  "library": {
+    "path": "/home/djn/123/ORB_SLAM2_AddSemantic/lib/libORB_SLAM2.so",
+    "sha256": "cbee289c8a221187b183f9bd2760eea5e42f1cf7f1fdd38cec11ea4ebd924484"
+  },
+  "yolo": {
+    "path": "/home/djn/123/ORB_SLAM2_AddSemantic/yolov5_RemoveDynamic/weights/yolov5s.pt",
+    "sha256": "3cb5c452360bc5c1dfd19ab0aca46f5e15a64af028846867310313a966cfe920"
+  },
+  "settings_sha256": "3c6e1782dfe35feb782d430348ce40923ee99de998748633e9b6821cdfc2ce67",
+  "recorded_at": "2026-08-12T21:46:15+08:00"
+}

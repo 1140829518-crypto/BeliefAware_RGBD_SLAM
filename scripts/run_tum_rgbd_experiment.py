@@ -88,12 +88,14 @@ def parse_runtime(log: str) -> tuple[str, str]:
 def main() -> None:
     parser = argparse.ArgumentParser(description="Run one ORB-SLAM2 RGB-D experiment.")
     parser.add_argument("--sequence", required=True)
-    parser.add_argument("--method", choices=["orb", "hard", "dynamic", "full"], required=True)
+    parser.add_argument("--method", choices=["orb", "hard", "frame-temporal", "dynamic", "full"], required=True)
     parser.add_argument("--dataset", type=Path, required=True)
     parser.add_argument("--association", type=Path, required=True)
     parser.add_argument("--settings", type=Path, required=True)
     parser.add_argument("--out-dir", type=Path, required=True)
     parser.add_argument("--device", default="cpu")
+    parser.add_argument("--socket-timeout", type=float, default=90.0,
+                        help="YOLO Unix-socket readiness timeout; does not affect SLAM frames.")
     parser.add_argument("--dynamic-lambda", type=float, default=None)
     parser.add_argument("--dynamic-theta", type=float, default=None)
     parser.add_argument("--person-dynamic-theta", type=float, default=None)
@@ -105,6 +107,7 @@ def main() -> None:
     method_mode = {
         "orb": ("0", "0"),
         "hard": ("1", "0"),
+        "frame-temporal": ("3", "0"),
         "dynamic": ("2", "0"),
         "full": ("2", "1"),
     }
@@ -134,7 +137,18 @@ def main() -> None:
     yolo_log = args.out_dir / "yolo.log"
     if args.method != "orb":
         yolo_proc = start_yolo(args.dataset, f"{args.sequence}_{args.method}", args.device, yolo_log)
-        wait_for_socket(SOCKET)
+        try:
+            wait_for_socket(SOCKET, timeout=args.socket_timeout)
+        except Exception:
+            yolo_proc.terminate()
+            try:
+                yolo_proc.wait(timeout=5)
+            except subprocess.TimeoutExpired:
+                yolo_proc.kill()
+            log_file = getattr(yolo_proc, "_codex_log_file", None)
+            if log_file is not None:
+                log_file.close()
+            raise
 
     cmd = [
         str(REPO / "Examples/RGB-D/rgbd_tum"),

@@ -46,6 +46,8 @@
 #include "Optimizer.h"
 #include "PnPsolver.h"
 #include "SemanticConfig.h"
+#include "FrameTemporalBaseline.h"
+#include "FrameTemporalConfig.h"
 
 #include <iostream>
 #include <cmath>
@@ -1840,10 +1842,14 @@ void Tracking::CullSemanticDynamicMapPoints()
         if(bInDynamicBox)
             ++nDynamicMapPoints;
 
-        if(bInDynamicBox)
+        if(bInDynamicBox && !SemanticConfig::UseFrameTemporalBaseline())
             pMP->UpdateSemanticDynamicScore(true, mCurrentFrame.mnId, dynamicClassId);
 
-        if(pMP->ShouldSuppressSemanticDynamic(dynamicClassId))
+        const bool suppress = SemanticConfig::UseFrameTemporalBaseline()
+                            ? FrameTemporalBaseline::Instance().IsDynamicAt(
+                                  mCurrentFrame, kp.pt.x, kp.pt.y)
+                            : pMP->ShouldSuppressSemanticDynamic(dynamicClassId);
+        if(suppress)
         {
             mCurrentFrame.mvbOutlier[i] = true;
             mCurrentFrame.mvpMapPoints[i] = static_cast<MapPoint*>(NULL);

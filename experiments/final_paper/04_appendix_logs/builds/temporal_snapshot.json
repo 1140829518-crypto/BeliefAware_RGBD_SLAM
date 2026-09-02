@@ -1,0 +1,13 @@
+{
+  "method": "Temporal",
+  "semantic_mode": 2,
+  "shadow": 0,
+  "active": 0,
+  "compile_flags": "-DENABLE_OBJECT_DYNAMIC_SHADOW_MODE=0 -DENABLE_OBJECT_DYNAMIC_ACTIVE_MODE=0",
+  "git_commit": "92733684846a6c578d409b127a4271876ea27077",
+  "binary_sha256": "58e463c75c25fc2c3268bb9bd053f8084d0736a6b45a0bb5ddf5b855d1e1373c",
+  "library_sha256": "20e1a9a452b8aa37e0701359373d51239d72ad9fefde1bc56ad639b32c16cf97",
+  "yolo_weights": "/home/djn/123/ORB_SLAM2_AddSemantic/yolov5_RemoveDynamic/weights/yolov5s.pt",
+  "yolo_sha256": "3cb5c452360bc5c1dfd19ab0aca46f5e15a64af028846867310313a966cfe920",
+  "recorded_at": "2026-08-13T12:17:19+08:00"
+}

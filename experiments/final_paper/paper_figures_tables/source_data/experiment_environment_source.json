@@ -1,0 +1,58 @@
+{
+  "recorded_at": "2026-08-12T18:50:38+08:00",
+  "project": "/home/djn/123/ORB_SLAM2_AddSemantic",
+  "git_commit": "92733684846a6c578d409b127a4271876ea27077",
+  "git_diff_status": "?? build_final_repeated_full/\n?? build_final_repeated_no_object/\n?? build_final_repeated_shadow/\n?? build_p1_tum_full_active/\n?? experiment_feasibility.md\n?? experiment_new/paper2/paper_draft_post_p0/abstract_post_p0.md\n?? experiment_new/paper2/paper_draft_post_p0/introduction_post_p0.md\n?? experiment_new/paper2/paper_draft_post_p0/keywords_post_p0.md\n?? experiment_new/paper2/paper_draft_post_p0/paper_content_check.md\n?? experiment_new/paper2/paper_draft_post_p0/paper_structure_plan.md\n?? experiments/\n?? paer2/\n?? scripts/run_p1_tum_full.py\n?? scripts/run_paper2_final_repeated.py",
+  "semantic_mode": 2,
+  "shadow_macro": 1,
+  "active_macro": 1,
+  "cmake_cxx_flags": "-DENABLE_OBJECT_DYNAMIC_SHADOW_MODE=1 -DENABLE_OBJECT_DYNAMIC_ACTIVE_MODE=1",
+  "binary": {
+    "path": "/home/djn/123/ORB_SLAM2_AddSemantic/Examples/RGB-D/rgbd_tum",
+    "sha256": "58e463c75c25fc2c3268bb9bd053f8084d0736a6b45a0bb5ddf5b855d1e1373c"
+  },
+  "shared_library": {
+    "path": "/home/djn/123/ORB_SLAM2_AddSemantic/lib/libORB_SLAM2.so",
+    "sha256": "b23357a453dd9ef0bf7c6a58af212365ee1029273dab4a4a183ae84c25b04bda"
+  },
+  "yolo_weights": {
+    "path": "/home/djn/123/ORB_SLAM2_AddSemantic/yolov5_RemoveDynamic/weights/yolov5s.pt",
+    "sha256": "3cb5c452360bc5c1dfd19ab0aca46f5e15a64af028846867310313a966cfe920"
+  },
+  "semantic_defaults": {
+    "kDynamicScoreThreshold": 3.0,
+    "kDynamicScoreIncrement": 1.0,
+    "kDynamicScoreDecay": 0.95,
+    "kPersonDynamicScoreThreshold": 1.0,
+    "kPersonDynamicScoreIncrement": 3.0,
+    "kPersonDynamicScoreDecay": 0.85
+  },
+  "settings": {
+    "path": "/home/djn/123/ORB_SLAM2_AddSemantic/Examples/RGB-D/TUM3.yaml",
+    "sha256": "3c6e1782dfe35feb782d430348ce40923ee99de998748633e9b6821cdfc2ce67"
+  },
+  "associations": {
+    "fr3_walking_xyz": {
+      "path": "/home/djn/123/ORB_SLAM2_AddSemantic/dataset_associations/fr3_walking_xyz_associate.txt",
+      "total_frames": 827
+    },
+    "fr3_walking_rpy": {
+      "path": "/home/djn/123/ORB_SLAM2_AddSemantic/dataset_associations/fr3_walking_rpy_associate.txt",
+      "total_frames": 866
+    },
+    "fr3_walking_halfsphere": {
+      "path": "/home/djn/123/ORB_SLAM2_AddSemantic/dataset_associations/fr3_walking_halfsphere_associate.txt",
+      "total_frames": 1021
+    }
+  },
+  "cpu": "Architecture:                            x86_64\nCPU op-mode(s):                          32-bit, 64-bit\nByte Order:                              Little Endian\nAddress sizes:                           39 bits physical, 48 bits virtual\nCPU(s):                                  16\nOn-line CPU(s) list:                     0-15\nThread(s) per core:                      2\nCore(s) per socket:                      8\nSocket(s):                               1\nNUMA node(s):                            1\nVendor ID:                               GenuineIntel\nCPU family:                              6\nModel:                                   165\nModel name:                              Intel(R) Core(TM) i7-10870H CPU @ 2.20GHz\nStepping:                                2\nCPU MHz:                                 2208.006\nBogoMIPS:                                4416.01\nVirtualization:                          VT-x\nHypervisor vendor:                       Microsoft\nVirtualization type:                     full\nL1d cache:                               256 KiB\nL1i cache:                               256 KiB\nL2 cache:                                2 MiB\nL3 cache:                                16 MiB\nNUMA node0 CPU(s):                       0-15\nVulnerability Gather data sampling:      Unknown: Dependent on hypervisor status\nVulnerability Ghostwrite:                Not affected\nVulnerability Indirect target selection: Mitigation; Aligned branch/return thunks\nVulnerability Itlb multihit:             KVM: Mitigation: Split huge pages\nVulnerability L1tf:                      Not affected\nVulnerability Mds:                       Not affected\nVulnerability Meltdown:                  Not affected\nVulnerability Mmio stale data:           Mitigation; Clear CPU buffers; SMT Host state unknown\nVulnerability Old microcode:             Not affected\nVulnerability Reg file data sampling:    Not affected\nVulnerability Retbleed:                  Mitigation; Enhanced IBRS\nVulnerability Spec rstack overflow:      Not affected\nVulnerability Spec store bypass:         Mitigation; Speculative Store Bypass disabled via prctl\nVulnerability Spectre v1:                Mitigation; usercopy/swapgs barriers and __user pointer sanitization\nVulnerability Spectre v2:                Mitigation; Enhanced / Automatic IBRS; IBPB conditional; PBRSB-eIBRS SW sequence; BHI SW loop, KVM SW loop\nVulnerability Srbds:                     Unknown: Dependent on hypervisor status\nVulnerability Tsa:                       Not affected\nVulnerability Tsx async abort:           Not affected\nVulnerability Vmscape:                   Not affected\nFlags:                                   fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ss ht syscall nx pdpe1gb rdtscp lm arch_perfmon rep_good nopl xtopology cpuid tsc_known_freq pni pclmulqdq vmx ssse3 fma cx16 pdcm pcid sse4_1 sse4_2 x2apic movbe popcnt aes xsave avx f16c rdrand hypervisor lahf_lm abm 3dnowprefetch ssbd ibrs ibpb stibp ibrs_enhanced tpr_shadow ept vpid ept_ad fsgsbase bmi1 avx2 smep bmi2 erms invpcid rdseed adx smap clflushopt xsaveopt xsavec xgetbv1 xsaves vnmi md_clear flush_l1d arch_capabilities",
+  "gpu": "NVIDIA GeForce RTX 3060 Laptop GPU, 581.29, 6144 MiB",
+  "memory": "total        used        free      shared  buff/cache   available\nMem:          7.6Gi       989Mi       6.1Gi       0.0Ki       610Mi       6.5Gi\nSwap:         2.0Gi       504Mi       1.5Gi",
+  "os": "Linux DESKTOP-RMP3JM1 6.18.33.2-microsoft-standard-WSL2 #1 SMP PREEMPT_DYNAMIC Thu Jun 18 21:54:43 UTC 2026 x86_64 x86_64 x86_64 GNU/Linux",
+  "platform": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.29",
+  "trajectory_evaluation": {
+    "script": "scripts/evaluate_tum_metrics.py",
+    "timestamp_max_diff_seconds": 0.02,
+    "alignment": "SE(3) rigid alignment"
+  }
+}

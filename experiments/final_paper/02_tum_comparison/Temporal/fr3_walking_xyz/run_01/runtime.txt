@@ -1,0 +1,3 @@
+median_tracking_time 0.040118
+mean_tracking_time 0.112727
+fps 8.87098920400614

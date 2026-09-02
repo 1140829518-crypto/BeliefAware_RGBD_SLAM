@@ -25,8 +25,8 @@ inline int Mode()
         const int parsed = std::atoi(env);
         if(parsed < 0)
             return 0;
-        if(parsed > 2)
-            return 2;
+        if(parsed > 3)
+            return 3;
         return parsed;
     }();
     return mode;
@@ -39,14 +39,19 @@ inline bool UseSemanticPipeline()
 
 inline bool UseDynamicAccumulation()
 {
-    return Mode() >= 2;
+    return Mode() == 2;
+}
+
+inline bool UseFrameTemporalBaseline()
+{
+    return Mode() == 3;
 }
 
 inline bool UseObjectSemanticMap()
 {
     const char *env = std::getenv("ORB_SLAM2_OBJECT_MAP");
     if(!env)
-        return Mode() >= 2;
+        return Mode() == 2;
     return std::atoi(env) != 0;
 }
 

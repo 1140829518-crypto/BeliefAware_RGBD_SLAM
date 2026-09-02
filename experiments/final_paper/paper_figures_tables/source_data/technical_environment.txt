@@ -1,0 +1,3 @@
+Git commit: 92733684846a6c578d409b127a4271876ea27077
+YOLO weights: /home/djn/123/ORB_SLAM2_AddSemantic/yolov5_RemoveDynamic/weights/yolov5s.pt
+YOLO SHA-256: 3cb5c452360bc5c1dfd19ab0aca46f5e15a64af028846867310313a966cfe920

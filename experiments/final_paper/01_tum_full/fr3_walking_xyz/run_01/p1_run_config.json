@@ -1,0 +1,33 @@
+{
+  "sequence": "fr3_walking_xyz",
+  "run_id": 1,
+  "status": "success",
+  "started_at": "2026-08-12T18:50:38+08:00",
+  "association_total_frames": 827,
+  "semantic_mode": 2,
+  "shadow_macro": 1,
+  "active_macro": 1,
+  "socket_path": "/tmp/orbslam2_p1_fr3_walking_xyz_01_111842.sock",
+  "command": [
+    "/usr/bin/python3",
+    "/home/djn/123/ORB_SLAM2_AddSemantic/scripts/run_tum_rgbd_experiment.py",
+    "--sequence",
+    "fr3_walking_xyz",
+    "--method",
+    "full",
+    "--dataset",
+    "/home/djn/datasets/TUMRGBD/rgbd_dataset_freiburg3_walking_xyz",
+    "--association",
+    "/home/djn/123/ORB_SLAM2_AddSemantic/dataset_associations/fr3_walking_xyz_associate.txt",
+    "--settings",
+    "/home/djn/123/ORB_SLAM2_AddSemantic/Examples/RGB-D/TUM3.yaml",
+    "--out-dir",
+    "/home/djn/123/ORB_SLAM2_AddSemantic/experiments/final_paper/01_tum_full/fr3_walking_xyz/run_01",
+    "--device",
+    "0"
+  ],
+  "environment_snapshot": "/home/djn/123/ORB_SLAM2_AddSemantic/experiments/final_paper/01_tum_full/experiment_environment.json",
+  "return_code": 0,
+  "finished_at": "2026-08-12T18:52:52+08:00",
+  "runtime_seconds": 123.54672556700098
+}

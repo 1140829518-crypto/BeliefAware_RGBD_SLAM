@@ -1,0 +1,56 @@
+ M CMakeLists.txt
+ M experiment_new/paper2/paper_draft_post_p0/experiment_section_post_p0.md
+ M include/SemanticConfig.h
+ M scripts/run_tum_rgbd_experiment.py
+ M src/ORBmatcher.cc
+ M src/Tracking.cc
+?? --association
+?? --dataset
+?? --device
+?? --method
+?? --out-dir
+?? --sequence
+?? --settings
+?? PAPER2_BASELINE_STATUS.txt
+?? REPRODUCTION.md
+?? audit/
+?? build_final_repeated_full/
+?? build_final_repeated_no_object/
+?? build_final_repeated_shadow/
+?? build_p1_tum_full_active/
+?? build_p2_orb_slam2/
+?? build_p2_semantic/
+?? build_p2_temporal/
+?? build_p3_semantic/
+?? build_p3_temporal/
+?? build_p4_semantic/
+?? build_paa_prl_full/
+?? build_paa_prl_no_object/
+?? dataset_associations/fr3_sitting_halfsphere_associate.txt
+?? dataset_associations/fr3_sitting_rpy_associate.txt
+?? dataset_associations/fr3_sitting_xyz_associate.txt
+?? experiment_feasibility.md
+?? experiment_new/paper2/paper_draft_post_p0/abstract_post_p0.md
+?? experiment_new/paper2/paper_draft_post_p0/introduction_post_p0.md
+?? experiment_new/paper2/paper_draft_post_p0/keywords_post_p0.md
+?? experiment_new/paper2/paper_draft_post_p0/paper_content_check.md
+?? experiment_new/paper2/paper_draft_post_p0/paper_structure_plan.md
+?? experiments/
+?? include/FrameTemporalBaseline.h
+?? include/FrameTemporalConfig.h
+?? include/SemanticConfig.h.save
+?? paer2/
+?? scripts/evaluate_mappoint_dynamic_correctness.py
+?? scripts/finalize_reobservation.py
+?? scripts/generate_strengthening_evidence.py
+?? scripts/run_p4_stage1.py.save
+?? scripts/summarize_bonn_cross_dataset.py
+?? scripts/summarize_decay_sensitivity_v2.py
+?? scripts/summarize_dsslam_repeated.py
+?? scripts/summarize_frame_temporal.py
+?? segment-anything-main.zip:SmartScreen
+?? segment-anything-main.zip:Zone.Identifier
+?? segment-anything/
+?? src/FrameTemporalBaseline.cc
+?? test_log/
+?? test_mappoint.csv

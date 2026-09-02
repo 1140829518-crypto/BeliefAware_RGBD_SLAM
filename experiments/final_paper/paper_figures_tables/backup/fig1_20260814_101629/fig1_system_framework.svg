@@ -1,0 +1,315 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="397.71pt" height="287.064pt" viewBox="0 0 397.71 287.064" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <metadata>
+  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <cc:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:date>2026-08-14T10:15:48.650596</dc:date>
+    <dc:format>image/svg+xml</dc:format>
+    <dc:creator>
+     <cc:Agent>
+      <dc:title>Matplotlib v3.7.5, https://matplotlib.org/</dc:title>
+     </cc:Agent>
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M -0 287.064 
+L 397.71 287.064 
+L 397.71 0 
+L -0 0 
+z
+" style="fill: #ffffff"/>
+  </g>
+  <g id="axes_1">
+   <g id="patch_2">
+    <path d="M 149.68125 20.3364 
+L 248.02875 20.3364 
+L 248.02875 9.2286 
+L 149.68125 9.2286 
+z
+" clip-path="url(#pbd0caa8106)" style="fill: #ffffff; stroke: #000000; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_3">
+    <path d="M 197.873051 20.518187 
+Q 152.491579 28.919626 108.099525 37.137894 
+" clip-path="url(#pbd0caa8106)" style="fill: none; stroke: #000000; stroke-width: 0.9; stroke-linecap: round"/>
+    <path d="M 111.967041 38.252489 
+L 108.099525 37.137894 
+L 111.311711 34.712639 
+z
+" clip-path="url(#pbd0caa8106)" style="stroke: #000000; stroke-width: 0.9; stroke-linecap: round"/>
+   </g>
+   <g id="patch_4">
+    <path d="M 199.836949 20.518187 
+Q 245.218421 28.919626 289.610475 37.137894 
+" clip-path="url(#pbd0caa8106)" style="fill: none; stroke: #000000; stroke-width: 0.9; stroke-linecap: round"/>
+    <path d="M 286.398289 34.712639 
+L 289.610475 37.137894 
+L 285.742959 38.252489 
+z
+" clip-path="url(#pbd0caa8106)" style="stroke: #000000; stroke-width: 0.9; stroke-linecap: round"/>
+   </g>
+   <g id="patch_5">
+    <path d="M 61.1685 51.6402 
+L 151.086214 51.6402 
+L 151.086214 38.5128 
+L 61.1685 38.5128 
+z
+" clip-path="url(#pbd0caa8106)" style="fill: #ffffff; stroke: #000000; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_6">
+    <path d="M 246.623786 51.6402 
+L 336.5415 51.6402 
+L 336.5415 38.5128 
+L 246.623786 38.5128 
+z
+" clip-path="url(#pbd0caa8106)" style="fill: #ffffff; stroke: #000000; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_7">
+    <path d="M 106.127357 52.643097 
+Q 106.127357 57.699798 106.127357 61.750269 
+" clip-path="url(#pbd0caa8106)" style="fill: none; stroke: #000000; stroke-width: 0.9; stroke-linecap: round"/>
+    <path d="M 107.927357 58.150269 
+L 106.127357 61.750269 
+L 104.327357 58.150269 
+z
+" clip-path="url(#pbd0caa8106)" style="stroke: #000000; stroke-width: 0.9; stroke-linecap: round"/>
+   </g>
+   <g id="patch_8">
+    <path d="M 291.582643 52.643097 
+Q 291.582643 57.699798 291.582643 61.750269 
+" clip-path="url(#pbd0caa8106)" style="fill: none; stroke: #000000; stroke-width: 0.9; stroke-linecap: round"/>
+    <path d="M 293.382643 58.150269 
+L 291.582643 61.750269 
+L 289.782643 58.150269 
+z
+" clip-path="url(#pbd0caa8106)" style="stroke: #000000; stroke-width: 0.9; stroke-linecap: round"/>
+   </g>
+   <g id="patch_9">
+    <path d="M 61.1685 77.895 
+L 151.086214 77.895 
+L 151.086214 64.7676 
+L 61.1685 64.7676 
+z
+" clip-path="url(#pbd0caa8106)" style="fill: #ffffff; stroke: #000000; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_10">
+    <path d="M 246.623786 77.895 
+L 336.5415 77.895 
+L 336.5415 64.7676 
+L 246.623786 64.7676 
+z
+" clip-path="url(#pbd0caa8106)" style="fill: #ffffff; stroke: #000000; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_11">
+    <path d="M 291.582643 78.897897 
+Q 291.582643 83.954598 291.582643 88.005069 
+" clip-path="url(#pbd0caa8106)" style="fill: none; stroke: #000000; stroke-width: 0.9; stroke-linecap: round"/>
+    <path d="M 293.382643 84.405069 
+L 291.582643 88.005069 
+L 289.782643 84.405069 
+z
+" clip-path="url(#pbd0caa8106)" style="stroke: #000000; stroke-width: 0.9; stroke-linecap: round"/>
+   </g>
+   <g id="patch_12">
+    <path d="M 246.623786 104.1498 
+L 336.5415 104.1498 
+L 336.5415 91.0224 
+L 246.623786 91.0224 
+z
+" clip-path="url(#pbd0caa8106)" style="fill: #ffffff; stroke: #000000; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_13">
+    <path d="M 106.914562 78.511086 
+Q 131.416762 97.687118 155.126557 116.242992 
+" clip-path="url(#pbd0caa8106)" style="fill: none; stroke: #000000; stroke-width: 0.9; stroke-linecap: round"/>
+    <path d="M 153.40093 112.606756 
+L 155.126557 116.242992 
+L 151.182192 115.441752 
+z
+" clip-path="url(#pbd0caa8106)" style="stroke: #000000; stroke-width: 0.9; stroke-linecap: round"/>
+   </g>
+   <g id="patch_14">
+    <path d="M 290.616387 104.404444 
+Q 266.29314 110.814518 242.942903 116.968169 
+" clip-path="url(#pbd0caa8106)" style="fill: none; stroke: #000000; stroke-width: 0.9; stroke-linecap: round"/>
+    <path d="M 246.882751 117.79133 
+L 242.942903 116.968169 
+L 245.965341 114.310187 
+z
+" clip-path="url(#pbd0caa8106)" style="stroke: #000000; stroke-width: 0.9; stroke-linecap: round"/>
+   </g>
+   <g id="patch_15">
+    <path d="M 142.656429 136.4634 
+L 255.053571 136.4634 
+L 255.053571 117.47916 
+L 142.656429 117.47916 
+z
+" clip-path="url(#pbd0caa8106)" style="fill: #ffffff; stroke: #2ca02c; stroke-width: 1.1; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_16">
+    <path d="M 198.855 137.465903 
+Q 198.855 141.716985 198.855 144.961836 
+" clip-path="url(#pbd0caa8106)" style="fill: none; stroke: #000000; stroke-width: 0.9; stroke-linecap: round"/>
+    <path d="M 200.655 141.361836 
+L 198.855 144.961836 
+L 197.055 141.361836 
+z
+" clip-path="url(#pbd0caa8106)" style="stroke: #000000; stroke-width: 0.9; stroke-linecap: round"/>
+   </g>
+   <g id="patch_17">
+    <path d="M 142.656429 160.6986 
+L 255.053571 160.6986 
+L 255.053571 147.5712 
+L 142.656429 147.5712 
+z
+" clip-path="url(#pbd0caa8106)" style="fill: #ffffff; stroke: #000000; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_18">
+    <path d="M 198.855 161.701103 
+Q 198.855 165.952185 198.855 169.197036 
+" clip-path="url(#pbd0caa8106)" style="fill: none; stroke: #000000; stroke-width: 0.9; stroke-linecap: round"/>
+    <path d="M 200.655 165.597036 
+L 198.855 169.197036 
+L 197.055 165.597036 
+z
+" clip-path="url(#pbd0caa8106)" style="stroke: #000000; stroke-width: 0.9; stroke-linecap: round"/>
+   </g>
+   <g id="patch_19">
+    <path d="M 142.656429 184.9338 
+L 255.053571 184.9338 
+L 255.053571 171.8064 
+L 142.656429 171.8064 
+z
+" clip-path="url(#pbd0caa8106)" style="fill: #ffffff; stroke: #2ca02c; stroke-width: 1.1; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_20">
+    <path d="M 198.855 185.936303 
+Q 198.855 190.187385 198.855 193.432236 
+" clip-path="url(#pbd0caa8106)" style="fill: none; stroke: #000000; stroke-width: 0.9; stroke-linecap: round"/>
+    <path d="M 200.655 189.832236 
+L 198.855 193.432236 
+L 197.055 189.832236 
+z
+" clip-path="url(#pbd0caa8106)" style="stroke: #000000; stroke-width: 0.9; stroke-linecap: round"/>
+   </g>
+   <g id="patch_21">
+    <path d="M 142.656429 209.169 
+L 255.053571 209.169 
+L 255.053571 196.0416 
+L 142.656429 196.0416 
+z
+" clip-path="url(#pbd0caa8106)" style="fill: #ffffff; stroke: #000000; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_22">
+    <path d="M 198.855 210.171503 
+Q 198.855 214.422585 198.855 217.667436 
+" clip-path="url(#pbd0caa8106)" style="fill: none; stroke: #000000; stroke-width: 0.9; stroke-linecap: round"/>
+    <path d="M 200.655 214.067436 
+L 198.855 217.667436 
+L 197.055 214.067436 
+z
+" clip-path="url(#pbd0caa8106)" style="stroke: #000000; stroke-width: 0.9; stroke-linecap: round"/>
+   </g>
+   <g id="patch_23">
+    <path d="M 142.656429 233.4042 
+L 255.053571 233.4042 
+L 255.053571 220.2768 
+L 142.656429 220.2768 
+z
+" clip-path="url(#pbd0caa8106)" style="fill: #ffffff; stroke: #2ca02c; stroke-width: 1.1; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_24">
+    <path d="M 198.855 234.406703 
+Q 198.855 238.657785 198.855 241.902636 
+" clip-path="url(#pbd0caa8106)" style="fill: none; stroke: #000000; stroke-width: 0.9; stroke-linecap: round"/>
+    <path d="M 200.655 238.302636 
+L 198.855 241.902636 
+L 197.055 238.302636 
+z
+" clip-path="url(#pbd0caa8106)" style="stroke: #000000; stroke-width: 0.9; stroke-linecap: round"/>
+   </g>
+   <g id="patch_25">
+    <path d="M 142.656429 257.6394 
+L 255.053571 257.6394 
+L 255.053571 244.512 
+L 142.656429 244.512 
+z
+" clip-path="url(#pbd0caa8106)" style="fill: #ffffff; stroke: #000000; stroke-linejoin: miter"/>
+   </g>
+   <g id="patch_26">
+    <path d="M 198.855 258.641903 
+Q 198.855 262.892985 198.855 266.137836 
+" clip-path="url(#pbd0caa8106)" style="fill: none; stroke: #000000; stroke-width: 0.9; stroke-linecap: round"/>
+    <path d="M 200.655 262.537836 
+L 198.855 266.137836 
+L 197.055 262.537836 
+z
+" clip-path="url(#pbd0caa8106)" style="stroke: #000000; stroke-width: 0.9; stroke-linecap: round"/>
+   </g>
+   <g id="patch_27">
+    <path d="M 142.656429 281.8746 
+L 255.053571 281.8746 
+L 255.053571 268.7472 
+L 142.656429 268.7472 
+z
+" clip-path="url(#pbd0caa8106)" style="fill: #ffffff; stroke: #000000; stroke-linejoin: miter"/>
+   </g>
+   <g id="text_1">
+    <text style="font: 7.5px 'Times New Roman', 'Noto Serif CJK JP'; text-anchor: middle" x="198.855" y="16.624102" transform="rotate(-0 198.855 16.624102)">RGB-D图像</text>
+   </g>
+   <g id="text_2">
+    <text style="font: 7.5px 'Times New Roman', 'Noto Serif CJK JP'; text-anchor: middle" x="106.127357" y="46.914586" transform="rotate(-0 106.127357 46.914586)">ORB特征提取</text>
+   </g>
+   <g id="text_3">
+    <text style="font: 7.5px 'Times New Roman', 'Noto Serif CJK JP'; text-anchor: middle" x="291.582643" y="46.936852" transform="rotate(-0 291.582643 46.936852)">目标检测</text>
+   </g>
+   <g id="text_4">
+    <text style="font: 7.5px 'Times New Roman', 'Noto Serif CJK JP'; text-anchor: middle" x="106.127357" y="73.327003" transform="rotate(-0 106.127357 73.327003)">目标与地图点关联</text>
+   </g>
+   <g id="text_5">
+    <text style="font: 7.5px 'Times New Roman', 'Noto Serif CJK JP'; text-anchor: middle" x="291.582643" y="73.218019" transform="rotate(-0 291.582643 73.218019)">类别与检测区域</text>
+   </g>
+   <g id="text_6">
+    <text style="font: 7.5px 'Times New Roman', 'Noto Serif CJK JP'; text-anchor: middle" x="291.582643" y="99.442936" transform="rotate(-0 291.582643 99.442936)">目标空间位置获取</text>
+   </g>
+   <g id="text_7">
+    <text style="font: 7.5px 'Times New Roman', 'Noto Serif CJK JP'; text-anchor: middle" x="198.855" y="125.422086" transform="rotate(-0 198.855 125.422086)">目标级语义信息管理</text>
+   </g>
+   <g id="text_8">
+    <text style="font: 6.8px 'Times New Roman', 'Noto Serif CJK JP'; text-anchor: middle" x="198.855" y="133.54059" transform="rotate(-0 198.855 133.54059)">类别·空间位置·关联地图点</text>
+   </g>
+   <g id="text_9">
+    <text style="font: 7.5px 'Times New Roman', 'Noto Serif CJK JP'; text-anchor: middle" x="198.855" y="155.980603" transform="rotate(-0 198.855 155.980603)">当前语义观测</text>
+   </g>
+   <g id="text_10">
+    <text style="font: 7.5px 'Times New Roman', 'Noto Serif CJK JP'; text-anchor: middle" x="198.855" y="180.395686" transform="rotate(-0 198.855 180.395686)">时间一致性动态证据累积</text>
+   </g>
+   <g id="text_11">
+    <text style="font: 7.5px 'Times New Roman', 'Noto Serif CJK JP'; text-anchor: middle" x="198.855" y="204.473855" transform="rotate(-0 198.855 204.473855)">动态状态判定</text>
+   </g>
+   <g id="text_12">
+    <text style="font: 7.5px 'Times New Roman', 'Noto Serif CJK JP'; text-anchor: middle" x="198.855" y="228.836203" transform="rotate(-0 198.855 228.836203)">动态地图点约束</text>
+   </g>
+   <g id="text_13">
+    <text style="font: 7.5px 'Times New Roman', 'Noto Serif CJK JP'; text-anchor: middle" x="198.855" y="253.033903" transform="rotate(-0 198.855 253.033903)">ORB-SLAM2跟踪与位姿估计</text>
+   </g>
+   <g id="text_14">
+    <text style="font: 7.5px 'Times New Roman', 'Noto Serif CJK JP'; text-anchor: middle" x="198.855" y="277.265002" transform="rotate(-0 198.855 277.265002)">相机位姿</text>
+   </g>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="pbd0caa8106">
+   <rect x="2.16" y="2.16" width="393.39" height="282.744"/>
+  </clipPath>
+ </defs>
+</svg>

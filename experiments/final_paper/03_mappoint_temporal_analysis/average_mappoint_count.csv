@@ -1,0 +1,7 @@
+method,sequence,avg_tracking_mappoint
+Semantic,fr3_walking_xyz,1704.49
+Semantic,fr3_walking_rpy,1574.02
+Semantic,fr3_walking_halfsphere,1270.82
+Temporal,fr3_walking_xyz,1788.02
+Temporal,fr3_walking_rpy,1716.74
+Temporal,fr3_walking_halfsphere,1280.54

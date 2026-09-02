@@ -46,6 +46,8 @@
 #include<string>
 
 #include "Frame.h"
+#include "FrameTemporalBaseline.h"
+#include "FrameTemporalConfig.h"
 
 using namespace std;
 
@@ -54,6 +56,21 @@ namespace ORB_SLAM2
 
 namespace
 {
+void EvaluateTemporalDecision(const Frame &frame, MapPoint *mapPoint,
+                              const float u, const float v,
+                              const bool dynamicHit, const int classId,
+                              float &score, float &threshold)
+{
+    if(SemanticConfig::UseFrameTemporalBaseline())
+    {
+        score = FrameTemporalBaseline::Instance().ScoreAt(frame, u, v);
+        threshold = FrameTemporalConfig::kDynamicThreshold;
+        return;
+    }
+    score = mapPoint->UpdateSemanticDynamicScore(dynamicHit, frame.mnId, classId);
+    threshold = SemanticConfig::DynamicScoreThresholdForClass(classId);
+}
+
 void LogMapPointProjectionEvidence(const Frame &frame,
                                    const MapPoint *mapPoint,
                                    const float u,
@@ -185,8 +202,11 @@ if(countPath && countPath[0])
         const int dynamicClassId = (bInDynamicBox && dynamic_box_id >= 0 && dynamic_box_id < static_cast<int>(F.objects_cur_.size()) && F.objects_cur_[dynamic_box_id])
                                  ? F.objects_cur_[dynamic_box_id]->ndetect_class
                                  : -1;
-        const float semanticDynamicScore = pMP->UpdateSemanticDynamicScore(bInDynamicBox, F.mnId, dynamicClassId);
-        const float semanticDynamicThreshold = SemanticConfig::DynamicScoreThresholdForClass(dynamicClassId);
+        float semanticDynamicScore = 0.0f;
+        float semanticDynamicThreshold = 0.0f;
+        EvaluateTemporalDecision(F, pMP, pMP->mTrackProjX, pMP->mTrackProjY,
+                                 bInDynamicBox, dynamicClassId,
+                                 semanticDynamicScore, semanticDynamicThreshold);
         LogMapPointProjectionEvidence(F, pMP, pMP->mTrackProjX, pMP->mTrackProjY,
                                       dynamicClassId, bInDynamicBox,
                                       semanticDynamicScore, semanticDynamicThreshold);
@@ -1868,8 +1888,11 @@ int ORBmatcher::SearchByProjection(Frame &CurrentFrame, const Frame &LastFrame, 
                 const int dynamicClassId = (bInDynamicBox && dynamic_box_id >= 0 && dynamic_box_id < static_cast<int>(CurrentFrame.objects_cur_.size()) && CurrentFrame.objects_cur_[dynamic_box_id])
                                          ? CurrentFrame.objects_cur_[dynamic_box_id]->ndetect_class
                                          : -1;
-                const float semanticDynamicScore = pMP->UpdateSemanticDynamicScore(bInDynamicBox, CurrentFrame.mnId, dynamicClassId);
-                const float semanticDynamicThreshold = SemanticConfig::DynamicScoreThresholdForClass(dynamicClassId);
+                float semanticDynamicScore = 0.0f;
+                float semanticDynamicThreshold = 0.0f;
+                EvaluateTemporalDecision(CurrentFrame, pMP, u, v,
+                                         bInDynamicBox, dynamicClassId,
+                                         semanticDynamicScore, semanticDynamicThreshold);
                 LogMapPointProjectionEvidence(CurrentFrame, pMP, u, v,
                                               dynamicClassId, bInDynamicBox,
                                               semanticDynamicScore, semanticDynamicThreshold);
@@ -2062,8 +2085,11 @@ int ORBmatcher::SearchByProjection(Frame &CurrentFrame, KeyFrame *pKF, const set
                 const int dynamicClassId = (bInDynamicBox && dynamic_box_id >= 0 && dynamic_box_id < static_cast<int>(CurrentFrame.objects_cur_.size()) && CurrentFrame.objects_cur_[dynamic_box_id])
                                          ? CurrentFrame.objects_cur_[dynamic_box_id]->ndetect_class
                                          : -1;
-                const float semanticDynamicScore = pMP->UpdateSemanticDynamicScore(bInDynamicBox, CurrentFrame.mnId, dynamicClassId);
-                const float semanticDynamicThreshold = SemanticConfig::DynamicScoreThresholdForClass(dynamicClassId);
+                float semanticDynamicScore = 0.0f;
+                float semanticDynamicThreshold = 0.0f;
+                EvaluateTemporalDecision(CurrentFrame, pMP, u, v,
+                                         bInDynamicBox, dynamicClassId,
+                                         semanticDynamicScore, semanticDynamicThreshold);
                 LogMapPointProjectionEvidence(CurrentFrame, pMP, u, v,
                                               dynamicClassId, bInDynamicBox,
                                               semanticDynamicScore, semanticDynamicThreshold);

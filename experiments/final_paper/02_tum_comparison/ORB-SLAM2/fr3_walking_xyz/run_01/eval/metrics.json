@@ -1,0 +1,30 @@
+{
+  "gt": "/home/djn/datasets/TUMRGBD/rgbd_dataset_freiburg3_walking_xyz/groundtruth.txt",
+  "est": "/home/djn/123/ORB_SLAM2_AddSemantic/experiments/final_paper/02_tum_comparison/ORB-SLAM2/fr3_walking_xyz/run_01/CameraTrajectory.txt",
+  "matches": 541,
+  "max_timestamp_diff": 0.02,
+  "ate": {
+    "rmse": 0.6547153698068219,
+    "mean": 0.6103563740504098,
+    "median": 0.6072310204575398,
+    "std": 0.2368909287358209,
+    "min": 0.04543706544718571,
+    "max": 1.2187878967236072
+  },
+  "rpe_trans": {
+    "rmse": 0.028563369044787148,
+    "mean": 0.02425180198733712,
+    "median": 0.021142797409634727,
+    "std": 0.015090266782124686,
+    "min": 0.0013420260921966796,
+    "max": 0.09539736084543887
+  },
+  "rpe_rot_deg": {
+    "rmse": 0.6797561141593821,
+    "mean": 0.5517847833022484,
+    "median": 0.4676132958853084,
+    "std": 0.396991092662233,
+    "min": 0.045935448805400896,
+    "max": 5.186411111874675
+  }
+}
