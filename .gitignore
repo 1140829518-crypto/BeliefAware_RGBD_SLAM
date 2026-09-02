@@ -97,3 +97,23 @@ table_format_check.txt
 .idea/
 .DS_Store
 experiment_new/paper2/paper_draft/
+
+
+# Build directories
+build*/
+**/CMakeFiles/
+**/CMakeCache.txt
+**/cmake_install.cmake
+**/Makefile
+
+# Compile objects
+*.o
+*.a
+*.so
+
+# Logs
+*.log
+
+# IDE
+.vscode/
+.idea/

@@ -1,9 +1,0 @@
-/home/djn/123/ORB_SLAM2_AddSemantic/build_p1_tum_full_active/CMakeFiles/edit_cache.dir
-/home/djn/123/ORB_SLAM2_AddSemantic/build_p1_tum_full_active/CMakeFiles/mono_euroc.dir
-/home/djn/123/ORB_SLAM2_AddSemantic/build_p1_tum_full_active/CMakeFiles/rebuild_cache.dir
-/home/djn/123/ORB_SLAM2_AddSemantic/build_p1_tum_full_active/CMakeFiles/mono_kitti.dir
-/home/djn/123/ORB_SLAM2_AddSemantic/build_p1_tum_full_active/CMakeFiles/mono_tum.dir
-/home/djn/123/ORB_SLAM2_AddSemantic/build_p1_tum_full_active/CMakeFiles/stereo_euroc.dir
-/home/djn/123/ORB_SLAM2_AddSemantic/build_p1_tum_full_active/CMakeFiles/stereo_kitti.dir
-/home/djn/123/ORB_SLAM2_AddSemantic/build_p1_tum_full_active/CMakeFiles/rgbd_tum.dir
-/home/djn/123/ORB_SLAM2_AddSemantic/build_p1_tum_full_active/CMakeFiles/ORB_SLAM2.dir
