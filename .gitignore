@@ -95,6 +95,11 @@ table_format_check.txt
 # Local editor/system files
 .vscode/
 .idea/
+
+# Local development artifacts
+experiments/**/mappoint_observations*.csv
+paper1_release/experiments/
+paper2_development/results/
 .DS_Store
 experiment_new/paper2/paper_draft/
 
