@@ -70,7 +70,7 @@ weights/
 */weights/
 
 # Bulk experiment outputs. Keep scripts/configs tracked separately.
-results/
+results/*
 experiment_new/**/runs/
 experiment_new/**/dataset/
 experiment_new/**/results/
@@ -113,6 +113,24 @@ build*/
 
 # Logs
 *.log
+
+# Public-release generated outputs
+runs/
+output/
+runs/**/*.csv
+output/**/*.csv
+experiments/**/runs/**/*.csv
+experiments/**/output/**/*.csv
+experiments/final_paper/03_mappoint_temporal_analysis/Temporal/
+experiments/final_paper/03_mappoint_temporal_analysis/Semantic/
+experiments/final_paper/04_appendix_logs/intermediate/
+test_log/
+
+# Keep curated paper-2 result summaries, including CSV files.
+!experiment_new/
+!experiment_new/paper2/
+!experiment_new/paper2/results/
+!experiment_new/paper2/results/**
 
 # IDE
 .vscode/
