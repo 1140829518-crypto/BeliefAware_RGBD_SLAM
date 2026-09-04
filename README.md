@@ -25,6 +25,16 @@ Instead of performing only frame-level dynamic filtering, the proposed framework
 The estimated landmark states are continuously updated and used to regulate the contribution of observations during SLAM optimization.
 
 
+## Manuscript Version
+
+This repository corresponds to the manuscript:
+
+**Belief-Aware Persistent Landmark Modeling with Reliability-Adaptive Measurement Selection for Dynamic RGB-D SLAM**
+
+The released code, configurations, and evaluation scripts correspond to the experiments reported in this manuscript.
+
+
+
 ## Main Features
 
 - Persistent MapPoint-level belief representation
@@ -59,52 +69,67 @@ The system has been tested under:
 - Pangolin
 
 
-## Installation
+
+## Installation  
 
 Clone the repository:
+
 ```bash
 git clone https://github.com/1140829518-crypto/BeliefAware_RGBD_SLAM.git
 
 cd BeliefAware_RGBD_SLAM
+
+Build the system:
 chmod +x build.sh
+
 ./build.sh
 
-
-Dataset Preparation
+## Dataset Preparation
 
 The experiments in this repository use public RGB-D datasets, including:
 TUM RGB-D Dataset
 Bonn RGB-D Dynamic Dataset
 
+Dataset download links:
+
+- TUM RGB-D Dataset:
+  https://vision.in.tum.de/data/datasets/rgbd-dataset
+
+- Bonn RGB-D Dynamic Dataset:
+  https://www.ipb.uni-bonn.de/data/rgbd-dynamic-dataset/
+
 The datasets are not redistributed in this repository because they are provided and maintained by their original authors.
 Please download the datasets from their official sources and configure the dataset paths before running experiments.
 The repository provides dataset association files, configuration examples, and evaluation procedures required for reproducing the reported experiments.
 
-Reproducibility
+## Reproducibility
+
 This repository provides:
-complete source code of the belief-aware RGB-D SLAM framework
-experimental configuration files
-dataset association files
-experiment execution scripts
-evaluation and analysis tools
+
+- complete source code of the belief-aware RGB-D SLAM framework
+- experimental configuration files
+- dataset association files
+- experiment execution scripts
+- evaluation and analysis tools
 
 To reproduce the reported results:
 
-Download the required public RGB-D datasets from their official sources.
-Configure dataset paths in the provided configuration files.
-Compile the SLAM system following the installation instructions.
-Run the provided experiment scripts.
-Evaluate results using the provided evaluation tools.
+1. Download the required public RGB-D datasets.
+2. Configure dataset paths.
+3. Compile the SLAM system.
+4. Run experiment scripts.
+5. Evaluate results.
 All algorithmic parameters, uncertainty settings, dynamic thresholds, and evaluation protocols used in the manuscript are included in this repository.
 
-Release
+## Release
 The official reproducible release is available at:
 https://github.com/1140829518-crypto/BeliefAware_RGBD_SLAM/releases/tag/v1.0.0
 
-Citation
+## Citation
 If you use this repository in your research, please cite:
 Citation information will be added after publication.
 
-License
+## License
 This project is released for academic research purposes.
+
 
