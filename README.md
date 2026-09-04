@@ -102,15 +102,18 @@ The datasets are not redistributed in this repository because they are provided 
 Please download the datasets from their official sources and configure the dataset paths before running experiments.
 The repository provides dataset association files, configuration examples, and evaluation procedures required for reproducing the reported experiments.
 
-## Reproducibility
+## Repository Structure
 
-This repository provides:
-
-- complete source code of the belief-aware RGB-D SLAM framework
-- experimental configuration files
-- dataset association files
-- experiment execution scripts
-- evaluation and analysis tools
+| Directory | Description |
+|---|---|
+| `src/` | Core SLAM implementation |
+| `include/` | Header files |
+| `Examples/` | Running examples |
+| `scripts/` | Experiment and evaluation scripts |
+| `experiment_new/` | Experimental configurations |
+| `experiments/` | Analysis and visualization tools |
+| `dataset_associations/` | Dataset association files |
+| `Thirdparty/` | Third-party dependencies |
 
 To reproduce the reported results:
 
