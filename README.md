@@ -145,7 +145,7 @@ Evaluate results using the provided evaluation tools.
 
 All algorithmic parameters, uncertainty settings, dynamic thresholds, and evaluation protocols used in the manuscript are included in this repository and the reproducibility release.
 
-## Release
+# Release
 
 The official reproducibility release corresponding to this manuscript is:
 
