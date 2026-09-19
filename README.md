@@ -16,7 +16,7 @@ Dynamic objects introduce significant challenges to RGB-D SLAM systems because u
 
 This repository implements a belief-aware persistent landmark modeling framework that maintains temporal states directly on persistent SLAM MapPoints.
 
-Different from approaches that only perform frame-level dynamic filtering, the proposed framework models persistent landmarks as carriers of temporal dynamic states and jointly considers:
+Unlike approaches that mainly rely on frame-level dynamic filtering, the proposed framework models persistent landmarks as carriers of temporal dynamic states and jointly considers:
 
 - dynamic probability estimation
 - uncertainty evolution
@@ -95,18 +95,19 @@ git clone https://github.com/1140829518-crypto/BeliefAware_RGBD_SLAM.git
 
 cd BeliefAware_RGBD_SLAM
 
-Build the system:
 chmod +x build.sh
 
 ./build.sh
 
 
-Dataset Preparation
+
+# Dataset Preparation
 
 The experiments use public RGB-D datasets:
 
-TUM RGB-D Dataset
-Bonn RGB-D Dynamic Dataset
+- TUM RGB-D Dataset
+- Bonn RGB-D Dynamic Dataset
+
 
 Dataset download links:
 
@@ -124,15 +125,15 @@ Users should download the datasets from the official sources and configure the d
 
 This repository provides:
 
-dataset association files
-configuration examples
-evaluation procedures
-experiment scripts
+- dataset association files
+- configuration examples
+- evaluation procedures
+- experiment scripts
 
 required for reproducing the reported results.
 
 
-Reproduce Experiments
+# Reproduce Experiments
 
 To reproduce the reported experiments:
 
@@ -144,33 +145,33 @@ Evaluate results using the provided evaluation tools.
 
 All algorithmic parameters, uncertainty settings, dynamic thresholds, and evaluation protocols used in the manuscript are included in this repository and the reproducibility release.
 
-Reproducibility Release
+## Release
 
 The official reproducibility release corresponding to this manuscript is:
 
-v1.0-paa-final
+**v1.0-paa-final**
 
 Release page:
 
 https://github.com/1140829518-crypto/BeliefAware_RGBD_SLAM/releases/tag/v1.0-paa-final
 
+
 The release package contains:
 
-source code
-experiment configurations
-evaluation scripts
-dataset association files
-environment documentation
-frozen binaries
-SHA256 manifests for protected artifacts
+- source code
+- experiment configurations
+- evaluation scripts
+- dataset association files
+- environment documentation
+- frozen binaries
+- SHA256 manifests for protected artifacts
 
 The released version corresponds exactly to the experimental configurations and evaluation protocols used for the manuscript.
 
 External DS-SLAM comparison results are provided as OUR RUN, with provenance limitations documented in the release audit files.
 
 
-Citation
-
+# Citation
 If you use this repository in your research, please cite the associated manuscript:
 
 Persistent MapPoint-Level Temporal Evidence Fusion for RGB-D SLAM in Dynamic Environments
@@ -178,7 +179,7 @@ Persistent MapPoint-Level Temporal Evidence Fusion for RGB-D SLAM in Dynamic Env
 Citation information will be updated after publication.
 
 
-License
+# License
 
 This project is released for academic research purposes.
 
