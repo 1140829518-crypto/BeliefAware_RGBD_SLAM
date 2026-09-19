@@ -3,17 +3,19 @@
   "release": "v1.0-paa",
   "accuracy_campaign": {
     "logging_mode": "formal accuracy instrumentation",
-    "payload_in_release": false,
+    "payload_in_release": true,
     "artifacts": [
       {
         "name": "rgbd_tum.accuracy",
         "sha256": "0079490eaf05c513ce18b5de95f66e54c98ba30e47511d17bd5a26ae4fcbddc9",
-        "available": false
+        "path": "binaries/accuracy/rgbd_tum.accuracy",
+        "available": true
       },
       {
         "name": "libORB_SLAM2.accuracy.so",
         "sha256": "85a1ec7d6c2786ad2fd2497ce0de2710c725a693ebd6b4d46c3bea63628c8687",
-        "available": false
+        "path": "binaries/accuracy/libORB_SLAM2.accuracy.so",
+        "available": true
       }
     ]
   },

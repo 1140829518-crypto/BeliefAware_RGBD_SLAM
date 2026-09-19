@@ -12,6 +12,29 @@ Recorded SHA-256:
 3cb5c452360bc5c1dfd19ab0aca46f5e15a64af028846867310313a966cfe920
 ```
 
+Official checkpoint source:
+
+```text
+https://github.com/ultralytics/yolov5/releases/download/v3.1/yolov5s.pt
+```
+
+Download and verify:
+
+```bash
+wget -O yolov5s.pt \
+  https://github.com/ultralytics/yolov5/releases/download/v3.1/yolov5s.pt
+echo "3cb5c452360bc5c1dfd19ab0aca46f5e15a64af028846867310313a966cfe920  yolov5s.pt" \
+  | sha256sum -c -
+mkdir -p yolov5_RemoveDynamic/weights
+cp yolov5s.pt yolov5_RemoveDynamic/weights/yolov5s.pt
+```
+
+- checkpoint filename: `yolov5s.pt`
+- byte size: `15184789`
+- official release: Ultralytics YOLOv5 v3.1
+- verification result: the official download is byte-identical to the frozen
+  experiment checkpoint.
+
 The local inference source tree records:
 
 - upstream remote: `https://github.com/ultralytics/yolov5`
@@ -21,8 +44,6 @@ The local inference source tree records:
 - `detect_speedup_send.py` SHA-256:
   `73ae3edbfe876e4ce46e52d6afbbdf4c2187a848cbf4b3f79c8dc841c3a1b978`
 
-The exact public release URL from which this particular checkpoint file was
-originally obtained is not recorded. The file hash is authoritative; the
-checkpoint must not be substituted merely because another file is also named
-`yolov5s.pt`. The checkpoint is not redistributed in this release because its
-provenance and redistribution conditions must be handled separately.
+The checkpoint is not redistributed in this repository. Reproduction downloads
+the official asset and requires the SHA-256 check above; another file with the
+same filename is not an acceptable substitute.

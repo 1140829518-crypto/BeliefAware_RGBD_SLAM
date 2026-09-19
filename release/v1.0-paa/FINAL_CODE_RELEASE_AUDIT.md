@@ -20,10 +20,10 @@ hashes are compared again immediately before the release commit/tag.
 | V4 source snapshot | PASS after release commit/tag |
 | Accuracy/runtime binary separation | PASS |
 | Runtime binary payload | PASS |
-| Formal accuracy binary payload | **MISSING**; expected hashes retained |
+| Formal accuracy binary payload | PASS — executable and library included |
 | Evaluator hash | PASS |
 | YOLO source revision and weight hash | PASS |
-| Exact YOLO checkpoint download provenance | PARTIAL |
+| Exact YOLO checkpoint download provenance | PASS — official v3.1 asset verified |
 | Bonn generation algorithm and hashes | PASS |
 | Native/Python environment versions | PASS WITH DRIVER LIMITATION |
 | Dataset redistribution avoided | PASS |
@@ -33,8 +33,8 @@ hashes are compared again immediately before the release commit/tag.
 
 Reproducibility status: **PARTIAL**.
 
-The package is suitable for transparent public release, but FULL binary-level
-reproduction requires recovery of the two formal accuracy artifacts matching
-the recorded hashes. The runtime artifacts must never be presented as those
-accuracy binaries. Exact checkpoint download provenance and the DS-SLAM
-upstream revision also remain unresolved.
+The package includes distinct, hash-verified accuracy and runtime artifacts and
+an officially downloadable, hash-verified YOLO checkpoint. The runtime
+artifacts must never be presented as accuracy binaries. FULL classification is
+still withheld because the local DS-SLAM source used by the external comparison
+lacks verifiable upstream revision metadata.

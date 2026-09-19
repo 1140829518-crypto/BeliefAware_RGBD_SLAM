@@ -41,19 +41,17 @@ SHA-256: cfdd35d556afcd5d080fe109396f5ffa7da1810a5e2c26a656c648216db24b13
 
 ## Known limitations
 
-1. The original formal accuracy binary payload is unavailable; only its hashes
-   survive in the formal manifests. Runtime binaries are preserved separately
-   and are not substitutes.
-2. The YOLO code revision and checkpoint hash are recorded, but the exact
-   original checkpoint download URL is not verifiable.
-3. The local DS-SLAM source tree lacked Git metadata, so its results remain
+1. Accuracy and runtime binaries are platform-specific Linux x86-64 artifacts
+   and remain explicitly separated.
+2. The local DS-SLAM source tree lacked Git metadata, so its results remain
    labeled OUR RUN rather than an exact official-release reproduction.
-4. Runtime measurements are hardware- and logging-mode-specific.
-5. Datasets, checkpoints, and raw bulk runs are not redistributed.
-6. Localization/coverage effects are sequence dependent; the release does not
+3. Runtime measurements are hardware- and logging-mode-specific.
+4. Datasets, checkpoints, and raw bulk runs are not redistributed.
+5. Localization/coverage effects are sequence dependent; the release does not
    support a universal localization-superiority claim.
 
-Reproducibility classification: **PARTIAL**. The source/protocol/evaluator,
-runtime artifacts, associations, hashes, and result provenance are frozen, but
-the missing accuracy payload and incomplete checkpoint/DS-SLAM provenance
-prevent an honest FULL classification.
+Reproducibility classification: **PARTIAL**. The source, accuracy/runtime
+payloads, official YOLO checkpoint, protocol, evaluator, associations, hashes,
+and result provenance are frozen. The external DS-SLAM comparison remains
+partially reproducible because its local source tree lacks verifiable upstream
+revision metadata.
