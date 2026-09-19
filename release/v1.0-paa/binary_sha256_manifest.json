@@ -1,0 +1,37 @@
+{
+  "schema": 1,
+  "release": "v1.0-paa",
+  "accuracy_campaign": {
+    "logging_mode": "formal accuracy instrumentation",
+    "payload_in_release": false,
+    "artifacts": [
+      {
+        "name": "rgbd_tum.accuracy",
+        "sha256": "0079490eaf05c513ce18b5de95f66e54c98ba30e47511d17bd5a26ae4fcbddc9",
+        "available": false
+      },
+      {
+        "name": "libORB_SLAM2.accuracy.so",
+        "sha256": "85a1ec7d6c2786ad2fd2497ce0de2710c725a693ebd6b4d46c3bea63628c8687",
+        "available": false
+      }
+    ]
+  },
+  "runtime_campaign": {
+    "logging_mode": "LIGHTWEIGHT",
+    "payload_in_release": true,
+    "artifacts": [
+      {
+        "name": "binaries/runtime/rgbd_tum.runtime",
+        "sha256": "331a3609e265e16e28b9c51015e288f4ac3671d05dc4f61f3468923a5dc1a471",
+        "available": true
+      },
+      {
+        "name": "binaries/runtime/libORB_SLAM2.runtime.so",
+        "sha256": "de0c8a80dd7618874a6a0c6af6858ebd54dfaf3705cff63e365d53ab13cfa074",
+        "available": true
+      }
+    ]
+  },
+  "warning": "Accuracy and runtime artifacts are not interchangeable."
+}

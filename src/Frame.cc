@@ -80,6 +80,7 @@ Frame::Frame(const Frame &frame)
      mDescriptors(frame.mDescriptors.clone()), 				//cv::Mat深拷贝
      mDescriptorsRight(frame.mDescriptorsRight.clone()),	//cv::Mat深拷贝
      mvpMapPoints(frame.mvpMapPoints), 						//深拷贝
+     mvMeasurementReliability(frame.mvMeasurementReliability),
      mvbOutlier(frame.mvbOutlier), 							//深拷贝
      mnId(frame.mnId),
      mpReferenceKF(frame.mpReferenceKF), 
@@ -175,6 +176,8 @@ Frame::Frame(const cv::Mat &imLeft, const cv::Mat &imRight, const long double &t
 
     // 初始化本帧的地图点
     mvpMapPoints = vector<MapPoint*>(N,static_cast<MapPoint*>(NULL));   
+	// Paper2 extension: Belief-aware measurement reliability.
+    mvMeasurementReliability = vector<float>(N,1.0f);
 	// 记录地图点是否为外点，初始化均为外点false
     mvbOutlier = vector<bool>(N,false);
 
@@ -326,6 +329,8 @@ Frame::Frame(const cv::Mat &imGray,
 
     // 初始化本帧的地图点
     mvpMapPoints = vector<MapPoint*>(N,static_cast<MapPoint*>(NULL));
+	// Paper2 extension: Belief-aware measurement reliability.
+    mvMeasurementReliability = vector<float>(N,1.0f);
 	// 记录地图点是否为外点，初始化均为外点false
     mvbOutlier = vector<bool>(N,false);
 
@@ -425,6 +430,8 @@ Frame::Frame(const cv::Mat &imGray, const long double &timeStamp, ORBextractor* 
 
     // 初始化本帧的地图点
     mvpMapPoints = vector<MapPoint*>(N,static_cast<MapPoint*>(NULL));
+	// Paper2 extension: Belief-aware measurement reliability.
+    mvMeasurementReliability = vector<float>(N,1.0f);
 	// 记录地图点是否为外点，初始化均为外点false
     mvbOutlier = vector<bool>(N,false);
 

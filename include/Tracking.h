@@ -95,6 +95,7 @@ public:
     struct SemanticFrameStatistics
     {
         unsigned long frameId = 0;
+        int totalKeypoints = 0;
         int dynamicKeypoints = 0;
         int dynamicMapPoints = 0;
         int suppressedMapPoints = 0;
@@ -354,6 +355,7 @@ protected:
      * @return false        跟踪失败
      */
     bool TrackLocalMap();
+    void LogUncertaintyAblationFrame() const;
 #if ENABLE_OBJECT_DYNAMIC_ACTIVE_MODE
     std::size_t CountCurrentFrameMapPoints() const;
     std::size_t FilterCurrentFrameDynamicMapPoints();
@@ -500,6 +502,15 @@ protected:
     //Current matches in frame
     ///当前帧中的进行匹配的内点,将会被不同的函数反复使用
     int mnMatchesInliers;
+
+    // Per-frame audit fields for the strict uncertainty ablation. They refer
+    // to the final TrackLocalMap pose-optimization call only.
+    int mAblationInitialCorrespondences;
+    int mAblationFinalInliers;
+    int mAblationValidMapPoints;
+    bool mAblationOptimizationAcceptance;
+    float mAblationMeanReliability;
+    float mAblationMeanUncertainty;
 
     //Last Frame, KeyFrame and Relocalisation Info
     // 上一关键帧

@@ -72,6 +72,7 @@ src/Viewer.cc
 src/Object.cpp
 src/SemanticObject.cc
 src/ExperimentTiming.cc
+src/FrameTemporalBaseline.cc
 )
 
 target_link_libraries(${PROJECT_NAME}
@@ -81,6 +82,31 @@ ${Pangolin_LIBRARIES}
 ${PROJECT_SOURCE_DIR}/Thirdparty/DBoW2/lib/libDBoW2.so
 ${PROJECT_SOURCE_DIR}/Thirdparty/g2o/lib/libg2o.so
 )
+
+option(BUILD_BELIEF_TESTS "Build persistent MapPoint belief regression tests" OFF)
+if(BUILD_BELIEF_TESTS)
+  enable_testing()
+  add_executable(test_dynamic_map_filter
+    paper2_development/modules/ObjectDynamic/tests/test_dynamic_map_filter.cc)
+  target_include_directories(test_dynamic_map_filter PRIVATE
+    ${PROJECT_SOURCE_DIR}/paper2_development/modules/ObjectDynamic)
+  target_compile_options(test_dynamic_map_filter PRIVATE -UNDEBUG)
+  target_link_libraries(test_dynamic_map_filter ${PROJECT_NAME})
+  add_test(NAME persistent_mappoint_belief COMMAND test_dynamic_map_filter)
+
+  add_executable(synthetic_belief_conflict
+    paper2_development/modules/ObjectDynamic/tests/synthetic_belief_conflict.cc)
+  target_include_directories(synthetic_belief_conflict PRIVATE
+    ${PROJECT_SOURCE_DIR}/paper2_development/modules/ObjectDynamic)
+  target_link_libraries(synthetic_belief_conflict ${PROJECT_NAME})
+
+  add_executable(test_optimizer_measurement_log
+    paper2_development/modules/ObjectDynamic/tests/test_optimizer_measurement_log.cc)
+  target_compile_options(test_optimizer_measurement_log PRIVATE -UNDEBUG)
+  target_link_libraries(test_optimizer_measurement_log ${PROJECT_NAME})
+  add_test(NAME optimizer_measurement_log_noninterference
+    COMMAND test_optimizer_measurement_log)
+endif()
 
 # Build examples
 

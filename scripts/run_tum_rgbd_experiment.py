@@ -88,12 +88,16 @@ def parse_runtime(log: str) -> tuple[str, str]:
 def main() -> None:
     parser = argparse.ArgumentParser(description="Run one ORB-SLAM2 RGB-D experiment.")
     parser.add_argument("--sequence", required=True)
-    parser.add_argument("--method", choices=["orb", "hard", "dynamic", "full"], required=True)
+    parser.add_argument("--method", choices=[
+        "baseline", "semantic", "legacy-temporal", "belief-active",
+        "orb", "hard", "frame-temporal", "dynamic", "full"], required=True)
     parser.add_argument("--dataset", type=Path, required=True)
     parser.add_argument("--association", type=Path, required=True)
     parser.add_argument("--settings", type=Path, required=True)
     parser.add_argument("--out-dir", type=Path, required=True)
     parser.add_argument("--device", default="cpu")
+    parser.add_argument("--socket-timeout", type=float, default=90.0,
+                        help="YOLO Unix-socket readiness timeout; does not affect SLAM frames.")
     parser.add_argument("--dynamic-lambda", type=float, default=None)
     parser.add_argument("--dynamic-theta", type=float, default=None)
     parser.add_argument("--person-dynamic-theta", type=float, default=None)
@@ -103,8 +107,13 @@ def main() -> None:
     args = parser.parse_args()
 
     method_mode = {
+        "baseline": ("0", "0"),
+        "semantic": ("1", "0"),
+        "legacy-temporal": ("2", "0"),
+        "belief-active": ("2", "0"),
         "orb": ("0", "0"),
         "hard": ("1", "0"),
+        "frame-temporal": ("3", "0"),
         "dynamic": ("2", "0"),
         "full": ("2", "1"),
     }
@@ -117,6 +126,40 @@ def main() -> None:
     env["ORB_SLAM2_OUTPUT_DIR"] = str(args.out_dir)
     env["ORB_SLAM2_SOCKET_PATH"] = str(SOCKET)
     env["MPLCONFIGDIR"] = str(REPO / ".matplotlib_cache")
+    profiles = {
+        "baseline": ("0", "0", "0", "0", ""),
+        "semantic": ("0", "0", "0", "1", ""),
+        "legacy-temporal": ("0", "0", "1", "1", ""),
+        "belief-active": ("1", "1", "0", "0", "mappoint"),
+    }
+    if args.method in profiles:
+        active, reliability, legacy_weight, legacy_hard, carrier = profiles[args.method]
+        env["ORB_SLAM2_ACTIVE_MODE_ENABLED"] = active
+        env["ORB_SLAM2_BELIEF_ENABLED"] = "1" if args.method == "belief-active" else "0"
+        env["ORB_SLAM2_RELIABILITY_ENABLED"] = reliability
+        env["ORB_SLAM2_LEGACY_TEMPORAL_WEIGHT_ENABLED"] = legacy_weight
+        env["ORB_SLAM2_LEGACY_TEMPORAL_HARD_REJECTION_ENABLED"] = legacy_hard
+        # Runtime-only campaigns deliberately disable the heavy per-frame and
+        # per-measurement diagnostics. The default formal benchmark behaviour
+        # remains unchanged when ORB_SLAM2_RUNTIME_LIGHTWEIGHT is absent.
+        runtime_lightweight = env.get("ORB_SLAM2_RUNTIME_LIGHTWEIGHT", "0") == "1"
+        if runtime_lightweight:
+            env.pop("ORB_SLAM2_ABLATION_FRAME_LOG", None)
+            env.pop("ORB_SLAM2_OPTIMIZER_MEASUREMENT_LOG", None)
+        else:
+            env["ORB_SLAM2_ABLATION_FRAME_LOG"] = str(
+                args.out_dir / "ablation_frames.csv")
+            env["ORB_SLAM2_OPTIMIZER_MEASUREMENT_LOG"] = str(
+                args.out_dir / "optimizer_measurements.csv")
+        if carrier:
+            env["ORB_SLAM2_MEMORY_CARRIER"] = carrier
+            if runtime_lightweight:
+                env.pop("ORB_SLAM2_BELIEF_LOG", None)
+            else:
+                env["ORB_SLAM2_BELIEF_LOG"] = str(args.out_dir / "belief_updates.csv")
+        else:
+            env.pop("ORB_SLAM2_MEMORY_CARRIER", None)
+            env.pop("ORB_SLAM2_BELIEF_LOG", None)
     if args.dynamic_lambda is not None:
         env["ORB_SLAM2_DYNAMIC_LAMBDA"] = str(args.dynamic_lambda)
     if args.dynamic_theta is not None:
@@ -132,9 +175,20 @@ def main() -> None:
 
     yolo_proc: subprocess.Popen | None = None
     yolo_log = args.out_dir / "yolo.log"
-    if args.method != "orb":
+    if args.method not in ("orb", "baseline"):
         yolo_proc = start_yolo(args.dataset, f"{args.sequence}_{args.method}", args.device, yolo_log)
-        wait_for_socket(SOCKET)
+        try:
+            wait_for_socket(SOCKET, timeout=args.socket_timeout)
+        except Exception:
+            yolo_proc.terminate()
+            try:
+                yolo_proc.wait(timeout=5)
+            except subprocess.TimeoutExpired:
+                yolo_proc.kill()
+            log_file = getattr(yolo_proc, "_codex_log_file", None)
+            if log_file is not None:
+                log_file.close()
+            raise
 
     cmd = [
         str(REPO / "Examples/RGB-D/rgbd_tum"),

@@ -1,0 +1,19 @@
+method: full_model
+description: Persistent belief, observation-gap evolution, and belief-aware measurement reliability
+dataset: /home/djn/datasets/TUMRGBD/rgbd_dataset_freiburg3_walking_xyz
+sequence: fr3_walking_xyz
+association: /home/djn/123/ORB_SLAM2_Paper2/dataset_associations/fr3_walking_xyz_associate.txt
+settings: /home/djn/123/ORB_SLAM2_Paper2/Examples/RGB-D/TUM3.yaml
+run_ids: [1, 2, 3]
+parameters:
+  belief_enabled: true
+  gap_enabled: true
+  uncertainty_enabled: true
+  reliability_enabled: true
+  alpha: 0.7
+  lambda: 0.05
+  lambda_uncertainty: 0.03
+  reliability_formula: max(0.05, (1-p)*(1-u))
+  high_dynamic_probability: 0.8
+  maximum_high_dynamic_uncertainty: 0.3
+  minimum_measurement_reliability: 0.05

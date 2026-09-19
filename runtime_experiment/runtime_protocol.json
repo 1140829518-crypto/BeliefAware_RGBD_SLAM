@@ -1,0 +1,36 @@
+{
+  "created_at": "2026-09-17T14:48:16.194860+08:00",
+  "head": "3eddbedbf1e6f7c4e55055ac75d3ad7d19f22710",
+  "branch": "belief_v4_geometry_protected",
+  "runtime_instrumented_artifacts": {
+    "Examples/RGB-D/rgbd_tum": "331a3609e265e16e28b9c51015e288f4ac3671d05dc4f61f3468923a5dc1a471",
+    "lib/libORB_SLAM2.so": "de0c8a80dd7618874a6a0c6af6858ebd54dfaf3705cff63e365d53ab13cfa074",
+    "scripts/evaluate_tum_metrics.py": "cfdd35d556afcd5d080fe109396f5ffa7da1810a5e2c26a656c648216db24b13"
+  },
+  "logging_mode": "LIGHTWEIGHT",
+  "runs_per_cell": {
+    "warmup": 1,
+    "measured": 3
+  },
+  "execution": "strictly serial",
+  "device": "0",
+  "platform": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.29",
+  "python": "3.8.10 (default, Mar 18 2025, 20:04:55) \n[GCC 9.4.0]",
+  "thread_environment": {
+    "OMP_NUM_THREADS": null,
+    "OPENBLAS_NUM_THREADS": null,
+    "MKL_NUM_THREADS": null,
+    "NUMEXPR_NUM_THREADS": null,
+    "VECLIB_MAXIMUM_THREADS": null
+  },
+  "sequences": [
+    "fr3_walking_xyz",
+    "rgbd_bonn_person_tracking"
+  ],
+  "methods": [
+    "Vanilla",
+    "Legacy Temporal",
+    "V3 BELIEF_ONLY",
+    "V4 GEOMETRY_PROTECTED"
+  ]
+}

@@ -1,0 +1,14 @@
+method: baseline
+description: Discrete DynamicMapFilter hard removal without belief or reliability weighting
+dataset: /home/djn/datasets/TUMRGBD/rgbd_dataset_freiburg3_walking_xyz
+sequence: fr3_walking_xyz
+association: /home/djn/123/ORB_SLAM2_Paper2/dataset_associations/fr3_walking_xyz_associate.txt
+settings: /home/djn/123/ORB_SLAM2_Paper2/Examples/RGB-D/TUM3.yaml
+run_ids: [1, 2, 3]
+parameters:
+  belief_enabled: false
+  gap_enabled: false
+  reliability_enabled: false
+  high_dynamic_probability: 0.8
+  maximum_high_dynamic_uncertainty: 0.3
+  minimum_measurement_reliability: 0.05

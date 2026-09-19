@@ -1,0 +1,14 @@
+method: probability_reliability
+description: Persistent dynamic probability with reliability adaptation and uncertainty evolution disabled
+settings: /home/djn/123/ORB_SLAM2_Paper2/Examples/RGB-D/TUM3.yaml
+run_ids: [1, 2, 3]
+parameters:
+  belief_enabled: true
+  gap_enabled: true
+  uncertainty_enabled: false
+  reliability_enabled: true
+  alpha: 0.7
+  lambda: 0.05
+  reliability_formula: max(0.05, 1-p)
+  high_dynamic_probability: 0.8
+  minimum_measurement_reliability: 0.05

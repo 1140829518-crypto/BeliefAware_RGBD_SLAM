@@ -26,6 +26,7 @@ Vocabulary/*.tar.gz
 build/
 build_active/
 build_post_p0_*/
+build*/
 doxygen/
 doc/
 *~
@@ -34,6 +35,7 @@ lib/
 
 # Runtime artifacts
 *.log
+*.csv
 *.out
 *.err
 *.sock
@@ -47,6 +49,7 @@ __pycache__/
 
 # Datasets and generated trajectories
 datasets/
+dataset/
 rgbd_dataset_*/
 baselines/
 *_trajectory/
@@ -74,6 +77,8 @@ results/
 experiment_new/**/runs/
 experiment_new/**/dataset/
 experiment_new/**/results/
+experiment_new/**/output/
+experiments/**/output/
 experiment_new/results/
 experiment_new/**/matplotlib_cache/
 experiment_new/**/environment/
@@ -97,3 +102,10 @@ table_format_check.txt
 .idea/
 .DS_Store
 experiment_new/paper2/paper_draft/
+
+# Generated trajectory and raw experiment artifacts
+**/CameraTrajectory*.txt
+**/KeyFrameTrajectory*.txt
+**/belief_evolution.csv
+**/raw_logs/
+**/experiment_logs/

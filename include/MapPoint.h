@@ -39,10 +39,26 @@
 
 #include<opencv2/core/core.hpp>
 #include<mutex>
+#include<cstdint>
 
 
 namespace ORB_SLAM2
 {
+
+struct MapPointDynamicBelief
+{
+    float dynamic_probability;
+    float uncertainty;
+    float conflict;
+    int previous_observation;
+    bool has_previous_observation;
+    float conflict_persistence;
+    std::uint64_t last_observation_frame;
+    std::uint64_t last_dynamic_frame;
+    std::uint32_t observation_count;
+
+    MapPointDynamicBelief();
+};
 
 class KeyFrame;
 class Map;
@@ -54,6 +70,12 @@ class Frame;
 class MapPoint
 {
 public:
+    enum class TemporalReliabilityState
+    {
+        STATIC,
+        UNCERTAIN,
+        DYNAMIC
+    };
 
     /**
      * @brief 给定坐标与keyframe构造MapPoint
@@ -73,6 +95,12 @@ public:
      * @param[in] idxF      MapPoint在Frame中的索引，即对应的特征点的编号
      */
     MapPoint(const cv::Mat &Pos,  Map* pMap, Frame* pFrame, const int &idxF);
+    ~MapPoint();
+
+    MapPointDynamicBelief GetDynamicBelief();
+    void SetDynamicBelief(const MapPointDynamicBelief &belief);
+    void MergeDynamicBeliefFrom(MapPoint *pMP);
+    static MapPoint *GetById(const long unsigned int id);
 
     /**
      * @brief 设置世界坐标系下地图点的位姿 
@@ -206,6 +234,9 @@ public:
      * @brief 判断是否应当被动态语义抑制
      */
     bool ShouldSuppressSemanticDynamic(const int &classId = -1);
+
+    TemporalReliabilityState GetTemporalReliabilityState();
+    float GetTemporalReliabilityWeight();
     /**
      * @brief 获取被找到的次数
      * 
@@ -297,6 +328,7 @@ public:
 
     ///全局BA中对当前点进行操作的时候使用的互斥量
     static std::mutex mGlobalMutex;
+    static std::mutex mBeliefRegistryMutex;
 
     //***********************
     // Position in absolute coordinates
@@ -333,6 +365,12 @@ protected:
     // Semantic Dynamic Probability Accumulation
     float mfSemanticDynamicScore = 0.0f;
     long unsigned int mnSemanticDynamicLastFrame = 0;
+    bool mbSemanticDynamicHasUpdate = false;
+    TemporalReliabilityState mTemporalReliabilityState = TemporalReliabilityState::STATIC;
+
+    // Persistent belief is owned by the landmark identity, not by Tracking.
+    MapPointDynamicBelief mDynamicBelief;
+    std::mutex mMutexDynamicBelief;
 
     /// Bad flag (we do not currently erase MapPoint from memory)
     bool mbBad;

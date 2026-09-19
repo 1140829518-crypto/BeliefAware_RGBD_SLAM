@@ -42,11 +42,109 @@
 #include<Eigen/StdVector>
 
 #include "Converter.h"
+#include "SemanticConfig.h"
+#include "ExperimentTiming.h"
 
 #include<mutex>
+#include<iostream>
+#include<fstream>
+#include<iomanip>
+#include<limits>
 
 namespace ORB_SLAM2
 {
+
+namespace
+{
+struct PoseMeasurementTrace
+{
+    bool valid;
+    unsigned long mapPointId;
+    const char *measurementType;
+    float p, u, h, rawConflict, persistentConflict;
+    float baseInformationScale, beliefReliability, dynamicOnlyReliability;
+    float effectiveReliability, effectiveInformationScale;
+    double baseInitialChi2, chi2Threshold, geometryRatio, initialChi2, finalChi2;
+    bool geometryProtected;
+    bool initialInlier, finalInlier, contributedToFinalOptimization;
+    int finalLevel;
+    double roundChi2[4];
+    int roundInlier[4], roundLevel[4], roundActiveBefore[4];
+
+    PoseMeasurementTrace()
+        : valid(false), mapPointId(0), measurementType(""), p(0.0f), u(0.0f),
+          h(0.0f), rawConflict(0.0f), persistentConflict(0.0f),
+          baseInformationScale(0.0f), beliefReliability(1.0f),
+          dynamicOnlyReliability(1.0f), effectiveReliability(1.0f),
+          effectiveInformationScale(0.0f), baseInitialChi2(0.0),
+          chi2Threshold(0.0), geometryRatio(0.0), initialChi2(0.0), finalChi2(0.0),
+          geometryProtected(false),
+          initialInlier(true), finalInlier(true),
+          contributedToFinalOptimization(false), finalLevel(0)
+    {
+        for(int i=0; i<4; ++i)
+        {
+            roundChi2[i] = std::numeric_limits<double>::quiet_NaN();
+            roundInlier[i] = -1;
+            roundLevel[i] = -1;
+            roundActiveBefore[i] = -1;
+        }
+    }
+};
+
+void LogPoseMeasurements(const Frame *pFrame,
+                         const std::vector<PoseMeasurementTrace> &traces)
+{
+    const char *path = std::getenv("ORB_SLAM2_OPTIMIZER_MEASUREMENT_LOG");
+    if(!path || !path[0])
+        return;
+    static std::mutex logMutex;
+    std::unique_lock<std::mutex> lock(logMutex);
+    std::ifstream check(path);
+    const bool needsHeader = !check.good() || check.peek() == std::ifstream::traits_type::eof();
+    check.close();
+    std::ofstream out(path, std::ios::app);
+    if(!out)
+        return;
+    if(needsHeader)
+    {
+        out << "frame_id,map_point_id,uncertainty_mode,measurement_policy,measurement_type,"
+               "p,u,h,raw_conflict,persistent_conflict,reliability,belief_reliability,"
+               "dynamic_only_reliability,base_initial_chi2,chi2_threshold,q,geometry_protected,"
+               "effective_reliability,base_information_scale,effective_information_scale,"
+               "initial_chi2,initial_inlier,";
+        for(int i=0; i<4; ++i)
+            out << "round" << i << "_active_before,round" << i << "_chi2,round"
+                << i << "_inlier,round" << i << "_level,";
+        out << "final_chi2,final_inlier,final_edge_level,final_active,"
+               "contributed_to_final_pose_optimization\n";
+    }
+    out << std::setprecision(9);
+    for(size_t i=0; i<traces.size(); ++i)
+    {
+        const PoseMeasurementTrace &t = traces[i];
+        if(!t.valid)
+            continue;
+        out << pFrame->mnId << ',' << t.mapPointId << ','
+            << SemanticConfig::UncertaintyModeName() << ','
+            << SemanticConfig::MeasurementPolicyName() << ',' << t.measurementType << ','
+            << t.p << ',' << t.u << ',' << t.h << ',' << t.rawConflict << ','
+            << t.persistentConflict << ',' << t.effectiveReliability << ','
+            << t.beliefReliability << ',' << t.dynamicOnlyReliability << ','
+            << t.baseInitialChi2 << ',' << t.chi2Threshold << ',' << t.geometryRatio << ','
+            << (t.geometryProtected ? 1 : 0) << ',' << t.effectiveReliability << ','
+            << t.baseInformationScale << ',' << t.effectiveInformationScale << ','
+            << t.initialChi2 << ','
+            << (t.initialInlier ? 1 : 0) << ',';
+        for(int r=0; r<4; ++r)
+            out << t.roundActiveBefore[r] << ',' << t.roundChi2[r] << ','
+                << t.roundInlier[r] << ',' << t.roundLevel[r] << ',';
+        out << t.finalChi2 << ',' << (t.finalInlier ? 1 : 0) << ','
+            << t.finalLevel << ',' << (t.finalLevel == 0 ? 1 : 0) << ','
+            << (t.contributedToFinalOptimization ? 1 : 0) << '\n';
+    }
+}
+}
 
 /**
  * @brief 全局BA： pMap中所有的MapPoints和关键帧做bundle adjustment优化
@@ -365,6 +463,10 @@ void Optimizer::BundleAdjustment(const vector<KeyFrame *> &vpKFs, const vector<M
  */
 int Optimizer::PoseOptimization(Frame *pFrame)
 {
+    ScopedExperimentTimer poseOptimizationTiming(
+        TimingComponent::PoseOptimization, true);
+    ExperimentTimingAggregate geometryProtectionTiming(
+        TimingComponent::GeometryProtection);
     // 该优化函数主要用于Tracking线程中：运动跟踪、参考帧跟踪、地图跟踪、重定位
 
     // Step 1：构造g2o优化器, BlockSolver_6_3表示：位姿 _PoseDim 为6维，路标点 _LandmarkDim 是3维
@@ -393,6 +495,10 @@ int Optimizer::PoseOptimization(Frame *pFrame)
 
     // Set MapPoint vertices
     const int N = pFrame->N;
+    const bool measurementLogging =
+        std::getenv("ORB_SLAM2_OPTIMIZER_MEASUREMENT_LOG") != NULL;
+    vector<PoseMeasurementTrace> measurementTraces(
+        measurementLogging ? static_cast<size_t>(N) : 0);
 
     // for Monocular
     vector<g2o::EdgeSE3ProjectXYZOnlyPose*> vpEdgesMono;
@@ -405,6 +511,10 @@ int Optimizer::PoseOptimization(Frame *pFrame)
     vector<size_t> vnIndexEdgeStereo;
     vpEdgesStereo.reserve(N);
     vnIndexEdgeStereo.reserve(N);
+
+    int nStaticEdges = 0;
+    int nUncertainEdges = 0;
+    int nDynamicEdges = 0;
 
     // 自由度为2的卡方分布，显著性水平为0.05，对应的临界阈值5.991
     const float deltaMono = sqrt(5.991);  
@@ -423,6 +533,38 @@ int Optimizer::PoseOptimization(Frame *pFrame)
         // 如果这个地图点还存在没有被剔除掉
         if(pMP)
         {
+            const MapPoint::TemporalReliabilityState reliabilityState =
+                pMP->GetTemporalReliabilityState();
+            const float temporalReliability =
+                SemanticConfig::UseLegacyTemporalWeight()
+                    ? pMP->GetTemporalReliabilityWeight() : 1.0f;
+            const float cachedBeliefReliability =
+                i < static_cast<int>(pFrame->mvMeasurementReliability.size())
+                    ? pFrame->mvMeasurementReliability[i]
+                    : 1.0f;
+            const bool geometryPolicy =
+                SemanticConfig::MeasurementPolicy()
+                    == SemanticConfig::MEASUREMENT_POLICY_GEOMETRY_PROTECTED;
+            MapPointDynamicBelief belief;
+            if(geometryPolicy || measurementLogging)
+                belief = pMP->GetDynamicBelief();
+            // BELIEF_ONLY deliberately preserves the frozen V3 measurement
+            // cache. Geometry-protected policy uses one coherent MapPoint
+            // snapshot for p, u, r_b, and the geometry decision.
+            const float beliefReliability = geometryPolicy
+                ? SemanticConfig::BeliefReliability(
+                    belief.dynamic_probability, belief.uncertainty)
+                : cachedBeliefReliability;
+            // Paper2 extension:
+            // Belief reliability is intentionally scoped to tracking pose
+            // optimization in this phase. BA and loop-closing remain unchanged.
+            if(reliabilityState == MapPoint::TemporalReliabilityState::UNCERTAIN)
+                ++nUncertainEdges;
+            else if(reliabilityState == MapPoint::TemporalReliabilityState::DYNAMIC)
+                ++nDynamicEdges;
+            else
+                ++nStaticEdges;
+
             // Monocular observation
             // 单目情况
             if(pFrame->mvuRight[i]<0)
@@ -458,7 +600,55 @@ int Optimizer::PoseOptimization(Frame *pFrame)
                 e->Xw[1] = Xw.at<float>(1);
                 e->Xw[2] = Xw.at<float>(2);
 
+                const std::chrono::steady_clock::time_point geometryStart =
+                    geometryPolicy ? std::chrono::steady_clock::now()
+                                   : std::chrono::steady_clock::time_point();
+                double baseInitialChi2 = 0.0;
+                if(geometryPolicy || measurementLogging)
+                {
+                    e->computeError();
+                    baseInitialChi2 = e->chi2();
+                }
+                const float effectiveBeliefReliability =
+                    SemanticConfig::EffectiveBeliefReliability(
+                        beliefReliability, belief.dynamic_probability,
+                        static_cast<float>(baseInitialChi2), 5.991f);
+                const float finalReliability =
+                    temporalReliability * effectiveBeliefReliability;
+                e->setInformation(Eigen::Matrix2d::Identity()*invSigma2*finalReliability);
+                if(geometryPolicy)
+                    geometryProtectionTiming.Add(
+                        std::chrono::duration_cast<std::chrono::duration<double> >(
+                            std::chrono::steady_clock::now() - geometryStart).count(),
+                        1, baseInitialChi2 / 5.991f <= 1.0f ? 1 : 0);
+
                 optimizer.addEdge(e);
+
+                if(measurementLogging)
+                {
+                    PoseMeasurementTrace &trace = measurementTraces[i];
+                    trace.valid = true;
+                    trace.mapPointId = pMP->mnId;
+                    trace.measurementType = "mono";
+                    trace.p = belief.dynamic_probability;
+                    trace.u = belief.uncertainty;
+                    trace.h = belief.conflict_persistence;
+                    trace.rawConflict = belief.conflict;
+                    trace.persistentConflict = belief.conflict * belief.conflict_persistence;
+                    trace.baseInformationScale = invSigma2;
+                    trace.beliefReliability = beliefReliability;
+                    trace.dynamicOnlyReliability =
+                        SemanticConfig::DynamicOnlyReliability(belief.dynamic_probability);
+                    trace.baseInitialChi2 = baseInitialChi2;
+                    trace.chi2Threshold = 5.991;
+                    trace.geometryRatio = baseInitialChi2 / 5.991;
+                    trace.geometryProtected = geometryPolicy
+                        && trace.geometryRatio <= 1.0;
+                    trace.effectiveReliability = effectiveBeliefReliability;
+                    trace.effectiveInformationScale = invSigma2 * finalReliability;
+                    trace.initialChi2 = e->chi2();
+                    trace.finalChi2 = trace.initialChi2;
+                }
 
                 vpEdgesMono.push_back(e);
                 vnIndexEdgeMono.push_back(i);
@@ -481,8 +671,7 @@ int Optimizer::PoseOptimization(Frame *pFrame)
                 e->setMeasurement(obs);
                 // 置信程度主要是看左目特征点所在的图层
                 const float invSigma2 = pFrame->mvInvLevelSigma2[kpUn.octave];
-                Eigen::Matrix3d Info = Eigen::Matrix3d::Identity()*invSigma2;
-                e->setInformation(Info);
+                e->setInformation(Eigen::Matrix3d::Identity()*invSigma2);
 
                 g2o::RobustKernelHuber* rk = new g2o::RobustKernelHuber;
                 e->setRobustKernel(rk);
@@ -498,7 +687,57 @@ int Optimizer::PoseOptimization(Frame *pFrame)
                 e->Xw[1] = Xw.at<float>(1);
                 e->Xw[2] = Xw.at<float>(2);
 
+                const std::chrono::steady_clock::time_point geometryStart =
+                    geometryPolicy ? std::chrono::steady_clock::now()
+                                   : std::chrono::steady_clock::time_point();
+                double baseInitialChi2 = 0.0;
+                if(geometryPolicy || measurementLogging)
+                {
+                    e->computeError();
+                    baseInitialChi2 = e->chi2();
+                }
+                const float effectiveBeliefReliability =
+                    SemanticConfig::EffectiveBeliefReliability(
+                        beliefReliability, belief.dynamic_probability,
+                        static_cast<float>(baseInitialChi2), 7.815f);
+                const float finalReliability =
+                    temporalReliability * effectiveBeliefReliability;
+                e->setInformation(Eigen::Matrix3d::Identity()*invSigma2*finalReliability);
+                if(geometryPolicy)
+                    geometryProtectionTiming.Add(
+                        std::chrono::duration_cast<std::chrono::duration<double> >(
+                            std::chrono::steady_clock::now() - geometryStart).count(),
+                        1, baseInitialChi2 / 7.815f <= 1.0f ? 1 : 0);
+
                 optimizer.addEdge(e);
+
+                if(measurementLogging)
+                {
+                    PoseMeasurementTrace &trace = measurementTraces[i];
+                    trace.valid = true;
+                    trace.mapPointId = pMP->mnId;
+                    // PoseOptimization uses the same 3D edge for stereo and
+                    // RGB-D-derived right-coordinate measurements.
+                    trace.measurementType = "stereo_rgbd_edge";
+                    trace.p = belief.dynamic_probability;
+                    trace.u = belief.uncertainty;
+                    trace.h = belief.conflict_persistence;
+                    trace.rawConflict = belief.conflict;
+                    trace.persistentConflict = belief.conflict * belief.conflict_persistence;
+                    trace.baseInformationScale = invSigma2;
+                    trace.beliefReliability = beliefReliability;
+                    trace.dynamicOnlyReliability =
+                        SemanticConfig::DynamicOnlyReliability(belief.dynamic_probability);
+                    trace.baseInitialChi2 = baseInitialChi2;
+                    trace.chi2Threshold = 7.815;
+                    trace.geometryRatio = baseInitialChi2 / 7.815;
+                    trace.geometryProtected = geometryPolicy
+                        && trace.geometryRatio <= 1.0;
+                    trace.effectiveReliability = effectiveBeliefReliability;
+                    trace.effectiveInformationScale = invSigma2 * finalReliability;
+                    trace.initialChi2 = e->chi2();
+                    trace.finalChi2 = trace.initialChi2;
+                }
 
                 vpEdgesStereo.push_back(e);
                 vnIndexEdgeStereo.push_back(i);
@@ -510,7 +749,11 @@ int Optimizer::PoseOptimization(Frame *pFrame)
 
     // 如果没有足够的匹配点,那么就只好放弃了
     if(nInitialCorrespondences<3)
+    {
+        if(measurementLogging)
+            LogPoseMeasurements(pFrame, measurementTraces);
         return 0;
+    }
 
     // We perform 4 optimizations, after each optimization we classify observation as inlier/outlier
     // At the next optimization, outliers are not included, but at the end they can be classified as inliers again.
@@ -528,6 +771,15 @@ int Optimizer::PoseOptimization(Frame *pFrame)
     {
 
         vSE3->setEstimate(Converter::toSE3Quat(pFrame->mTcw));
+        if(measurementLogging)
+        {
+            for(size_t i=0; i<vpEdgesMono.size(); ++i)
+                measurementTraces[vnIndexEdgeMono[i]].roundActiveBefore[it] =
+                    vpEdgesMono[i]->level() == 0 ? 1 : 0;
+            for(size_t i=0; i<vpEdgesStereo.size(); ++i)
+                measurementTraces[vnIndexEdgeStereo[i]].roundActiveBefore[it] =
+                    vpEdgesStereo[i]->level() == 0 ? 1 : 0;
+        }
         // 其实就是初始化优化器,这里的参数0就算是不填写,默认也是0,也就是只对level为0的边进行优化
         optimizer.initializeOptimization(0);
         // 开始优化，优化10次
@@ -562,6 +814,19 @@ int Optimizer::PoseOptimization(Frame *pFrame)
                 e->setLevel(0);                 // 设置为inlier, level 0 对应为内点,上面的过程中我们就是要优化这些关系
             }
 
+            if(measurementLogging)
+            {
+                PoseMeasurementTrace &trace = measurementTraces[idx];
+                trace.roundChi2[it] = chi2;
+                trace.roundInlier[it] = pFrame->mvbOutlier[idx] ? 0 : 1;
+                trace.roundLevel[it] = e->level();
+                trace.finalChi2 = chi2;
+                trace.finalInlier = !pFrame->mvbOutlier[idx];
+                trace.finalLevel = e->level();
+                trace.contributedToFinalOptimization =
+                    trace.roundActiveBefore[it] == 1;
+            }
+
             if(it==2)
                 e->setRobustKernel(0); // 除了前两次优化需要RobustKernel以外, 其余的优化都不需要 -- 因为重投影的误差已经有明显的下降了
         } // 对单目误差边的处理
@@ -591,6 +856,19 @@ int Optimizer::PoseOptimization(Frame *pFrame)
                 pFrame->mvbOutlier[idx]=false;
             }
 
+            if(measurementLogging)
+            {
+                PoseMeasurementTrace &trace = measurementTraces[idx];
+                trace.roundChi2[it] = chi2;
+                trace.roundInlier[it] = pFrame->mvbOutlier[idx] ? 0 : 1;
+                trace.roundLevel[it] = e->level();
+                trace.finalChi2 = chi2;
+                trace.finalInlier = !pFrame->mvbOutlier[idx];
+                trace.finalLevel = e->level();
+                trace.contributedToFinalOptimization =
+                    trace.roundActiveBefore[it] == 1;
+            }
+
             if(it==2)
                 e->setRobustKernel(0);
         } // 对双目误差边的处理
@@ -605,6 +883,33 @@ int Optimizer::PoseOptimization(Frame *pFrame)
     g2o::SE3Quat SE3quat_recov = vSE3_recov->estimate();
     cv::Mat pose = Converter::toCvMat(SE3quat_recov);
     pFrame->SetPose(pose);
+
+    if(measurementLogging)
+        LogPoseMeasurements(pFrame, measurementTraces);
+
+    int nUncertainInliers = 0;
+    int nUncertainOutliers = 0;
+    for(int i=0; i<N; ++i)
+    {
+        MapPoint *pMP = pFrame->mvpMapPoints[i];
+        if(!pMP || pMP->GetTemporalReliabilityState()
+                    != MapPoint::TemporalReliabilityState::UNCERTAIN)
+            continue;
+        if(pFrame->mvbOutlier[i])
+            ++nUncertainOutliers;
+        else
+            ++nUncertainInliers;
+    }
+    if(std::getenv("ORB_SLAM2_TEMPORAL_RELIABILITY_LOG") != NULL)
+    std::cout << "[TemporalReliability] frame=" << pFrame->mnId
+              << " mode=" << static_cast<int>(SemanticConfig::ReliabilityMode())
+              << " static_edges=" << nStaticEdges
+              << " uncertain_edges=" << nUncertainEdges
+              << " dynamic_edges=" << nDynamicEdges
+              << " uncertain_inliers=" << nUncertainInliers
+              << " uncertain_outliers=" << nUncertainOutliers
+              << " uncertain_weight=" << SemanticConfig::UncertainWeight()
+              << std::endl;
 
     // 并且返回内点数目
     return nInitialCorrespondences-nBad;

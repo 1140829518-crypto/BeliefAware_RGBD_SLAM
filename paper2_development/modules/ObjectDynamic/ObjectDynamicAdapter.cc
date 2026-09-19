@@ -67,6 +67,7 @@ StableMapView ObjectDynamicAdapter::ProcessFrame(const ObjectSnapshot &snapshot)
     const std::vector<Detection> detections = ConvertDetections(snapshot);
     const AssociationResult association_result = association_.AssociateObjects(
         previous_objects, detections, snapshot.timestamp);
+    last_carrier_observations_.clear();
 
     // Matched objects preserve IDs, receive motion estimates, and update lifecycle state.
     for(std::size_t index = 0; index < association_result.matches.size(); ++index)
@@ -122,6 +123,11 @@ StableMapView ObjectDynamicAdapter::ProcessFrame(const ObjectSnapshot &snapshot)
         }
         AssociateDetectionMapPoints(current.GetObjectId(), snapshot,
                                     match.detection_index);
+        StableMapView::CarrierObservation observation;
+        observation.object_id = current.GetObjectId();
+        observation.class_id = detections[match.detection_index].class_id;
+        observation.map_point_ids = MapPointsForDetection(snapshot, match.detection_index);
+        last_carrier_observations_.push_back(observation);
     }
 
     // Unmatched previous objects become/remain Lost and reset partial recovery.
@@ -146,6 +152,13 @@ StableMapView ObjectDynamicAdapter::ProcessFrame(const ObjectSnapshot &snapshot)
         AssociateDetectionMapPoints(
             created.GetObjectId(), snapshot,
             association_result.unmatched_detection_indices[index]);
+        const std::size_t detection_index =
+            association_result.unmatched_detection_indices[index];
+        StableMapView::CarrierObservation observation;
+        observation.object_id = created.GetObjectId();
+        observation.class_id = detections[detection_index].class_id;
+        observation.map_point_ids = MapPointsForDetection(snapshot, detection_index);
+        last_carrier_observations_.push_back(observation);
     }
 
     has_last_frame_ = true;
@@ -239,6 +252,7 @@ StableMapView ObjectDynamicAdapter::BuildStableMapView(
     view.snapshot_accepted = snapshot_accepted;
     view.active_objects = map_manager_.GetActiveObjects();
     view.recovered_objects = map_manager_.GetRecoveredObjects();
+    view.carrier_observations = last_carrier_observations_;
 
     for(std::size_t index = 0; index < view.active_objects.size(); ++index)
     {

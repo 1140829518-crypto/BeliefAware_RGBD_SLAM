@@ -1,0 +1,29 @@
+tum_root: /absolute/path/to/TUMRGBD
+bonn_root: /absolute/path/to/bonn_rgbd_dynamic
+output_root: /absolute/path/to/reproduction_outputs
+
+sequences:
+  fr3_walking_xyz:
+    dataset: rgbd_dataset_freiburg3_walking_xyz
+    association: dataset_associations/fr3_walking_xyz_associate.txt
+    settings: Examples/RGB-D/TUM3.yaml
+  fr3_walking_static:
+    dataset: rgbd_dataset_freiburg3_walking_static
+    association: dataset_associations/fr3_walking_static_associate.txt
+    settings: Examples/RGB-D/TUM3.yaml
+  fr3_walking_rpy:
+    dataset: rgbd_dataset_freiburg3_walking_rpy
+    association: dataset_associations/fr3_walking_rpy_associate.txt
+    settings: Examples/RGB-D/TUM3.yaml
+  rgbd_bonn_person_tracking:
+    dataset: rgbd_bonn_person_tracking
+    association: associate.txt
+    settings: configs/Bonn.yaml
+  rgbd_bonn_synchronous:
+    dataset: rgbd_bonn_synchronous
+    association: associate.txt
+    settings: configs/Bonn.yaml
+  rgbd_bonn_crowd:
+    dataset: rgbd_bonn_crowd
+    association: associate.txt
+    settings: configs/Bonn.yaml

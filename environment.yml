@@ -1,0 +1,16 @@
+name: orb-slam2-paper2-paa
+channels:
+  - conda-forge
+dependencies:
+  - python=3.8.10
+  - numpy=1.24.4
+  - scipy=1.10.1
+  - matplotlib=3.7.5
+  - pyyaml=5.3.1
+  - pandas=2.0.3
+  - pip
+  - pip:
+      # Semantic inference is intentionally installed from the locally
+      # acquired YOLOv5 tree because its exact requirements depend on that
+      # external asset. See reproducibility.md.
+      - packaging==20.3

@@ -1,4 +1,134 @@
+# ORB-SLAM2 Paper2: PAA reproducibility release
+
+This repository contains the frozen V4 **GEOMETRY_PROTECTED** implementation
+for the manuscript *Persistent MapPoint-Level Temporal Evidence Fusion for
+RGB-D SLAM in Dynamic Environments*. V3 and V4 share the same persistent
+MapPoint belief; V4 changes only the tracking `PoseOptimization` measurement
+policy. It does not modify Local BA, Global BA, or loop closing.
+
+Start with:
+
+- [`reproducibility.md`](reproducibility.md): build, datasets, protocol, and commands;
+- [`RESULTS.md`](RESULTS.md): frozen hashes and authoritative-result locations;
+- [`configs/`](configs/): public path/configuration templates;
+- [`evaluation/`](evaluation/): evaluator documentation and wrapper;
+- [`experiments/`](experiments/): experiment protocol index;
+- [`reproduce_paa_results.sh`](reproduce_paa_results.sh): dry-run-first PAA workflow.
+
+Datasets, neural-network weights, generated trajectories, raw logs, and large
+binaries are deliberately not part of the public package. No parameter search
+is performed by the reproduction entry point.
+
+The code derives from ORB-SLAM2 and is distributed under the GPL terms stated
+in [`LICENSE`](LICENSE). Third-party components retain their own notices.
+
+## Legacy project documentation
+
 # ORB-SLAM2 超详细注释
+
+## Paper2 reproducibility quick start
+
+This repository contains the implementation, configurations, experiment
+drivers, and evaluation tools for *Belief-Aware Persistent Landmark Modeling
+with Reliability-Adaptive Measurement Selection for Dynamic RGB-D SLAM*.
+Detailed release instructions are provided in
+[`REPRODUCIBILITY.md`](REPRODUCIBILITY.md).
+
+### Requirements
+
+- Linux with a C++14 compiler and CMake
+- OpenCV 3 or 4, Eigen3, and Pangolin
+- Python 3 with the packages in `yolov5_RemoveDynamic/requirements.txt`
+- PyYAML for the Paper2 ablation runner
+- ORB vocabulary `Vocabulary/ORBvoc.txt`
+- YOLOv5s weights at `yolov5_RemoveDynamic/weights/yolov5s.pt`
+
+The TUM RGB-D and Bonn RGB-D datasets and model weights are external assets;
+they are not stored in this repository.
+
+### Build instructions
+
+Build the bundled third-party libraries, vocabulary, ORB-SLAM2 library, and
+examples from the repository root:
+
+```bash
+chmod +x build.sh
+./build.sh
+```
+
+For the belief-ablation build used by the experiment driver:
+
+```bash
+cmake -S . -B build_belief_ablation \
+  -DCMAKE_CXX_FLAGS="-DENABLE_OBJECT_DYNAMIC_SHADOW_MODE=1 -DENABLE_OBJECT_DYNAMIC_ACTIVE_MODE=1"
+cmake --build build_belief_ablation --target rgbd_tum -j2
+```
+
+### Dataset preparation
+
+Download the public TUM RGB-D or Bonn RGB-D sequences and keep them outside
+the repository. Each TUM sequence must contain `rgb/`, `depth/`, and
+`groundtruth.txt`. Association files for the evaluated TUM sequences are kept
+under `dataset_associations/`. Update local dataset paths before running the
+drivers; do not copy datasets into version control.
+
+### Running commands
+
+Run one configured TUM RGB-D experiment with explicit paths:
+
+```bash
+python3 scripts/run_tum_rgbd_experiment.py \
+  --sequence fr3_walking_xyz \
+  --method full \
+  --dataset /path/to/rgbd_dataset_freiburg3_walking_xyz \
+  --association dataset_associations/fr3_walking_xyz_associate.txt \
+  --settings Examples/RGB-D/TUM3.yaml \
+  --out-dir /path/to/output/full_model/fr3_walking_xyz/run_01 \
+  --device 0
+```
+
+Run the four Paper2 configurations and three predetermined repetitions:
+
+```bash
+python3 experiment_new/paper2_belief_eval/run_belief_ablation.py \
+  --methods baseline belief_only belief_gap full_model \
+  --sequences fr3_walking_xyz fr3_walking_rpy fr3_walking_halfsphere \
+  --runs 1 2 3
+```
+
+### Configuration description
+
+The fixed ablation settings are stored in
+`experiment_new/paper2_belief_eval/configs/`:
+
+- `baseline.yaml`: belief, gap evolution, and reliability weighting disabled
+- `belief_only.yaml`: persistent belief enabled
+- `belief_gap.yaml`: persistent belief and observation-gap evolution enabled
+- `full_model.yaml`: belief, gap evolution, and reliability weighting enabled
+
+These files record the run IDs, camera settings, thresholds, and belief
+parameters used by the reported comparisons. Local dataset paths may be
+changed; algorithm parameters should remain unchanged for reproduction.
+
+### Evaluation commands
+
+Generate per-run TUM ATE/RPE metrics:
+
+```bash
+python3 scripts/evaluate_tum_metrics.py \
+  --gt /path/to/sequence/groundtruth.txt \
+  --est /path/to/run/CameraTrajectory.txt \
+  --out-dir /path/to/run/eval
+```
+
+Regenerate the belief-ablation summaries from existing run outputs:
+
+```bash
+python3 experiment_new/paper2_belief_eval/run_belief_ablation.py --summary-only
+```
+
+Generated trajectories, logs, CSV summaries, datasets, build directories, and
+model weights are intentionally excluded from version control.
 
 ## Paper2 Object-level Dynamic RGB-D SLAM
 

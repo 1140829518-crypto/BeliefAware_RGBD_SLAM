@@ -1,0 +1,23 @@
+ORB-SLAM2 Paper2 licensing notice
+=================================
+
+Copyright (C) 2014-2016 Raul Mur-Artal, University of Zaragoza.
+Paper2 modifications are distributed under the same terms.
+
+This program is free software: you can redistribute it and/or modify it under
+the terms of the GNU General Public License as published by the Free Software
+Foundation, either version 3 of the License, or (at your option) any later
+version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+The complete GNU GPL version 3 license text is available at:
+https://www.gnu.org/licenses/gpl-3.0.txt
+
+SPDX-License-Identifier: GPL-3.0-or-later
+
+Bundled or externally acquired dependencies, datasets, models, and baseline
+implementations are governed by their respective licenses. In particular,
+the bundled DBoW2 and g2o directories retain their original license files.

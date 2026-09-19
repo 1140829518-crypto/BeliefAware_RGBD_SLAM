@@ -12,9 +12,12 @@ namespace ORB_SLAM2
 namespace
 {
 typedef std::array<double, static_cast<std::size_t>(TimingComponent::Count)> TimingRow;
+typedef std::array<std::size_t, static_cast<std::size_t>(TimingComponent::Count)> CountRow;
 
 std::mutex gTimingMutex;
 std::vector<TimingRow> gFrameTimings;
+std::vector<CountRow> gFrameCalls;
+std::vector<CountRow> gFrameEvents;
 std::size_t gCurrentFrame = 0;
 std::size_t gWarmupFrames = 30;
 
@@ -27,6 +30,9 @@ const char *ComponentName(TimingComponent component)
     case TimingComponent::TemporalEvidenceUpdate: return "temporal_evidence_update";
     case TimingComponent::ObjectDynamicAdapter: return "objectdynamic_adapter";
     case TimingComponent::DynamicMapFilter: return "dynamic_map_filter";
+    case TimingComponent::BeliefUpdate: return "belief_update";
+    case TimingComponent::GeometryProtection: return "geometry_protection";
+    case TimingComponent::PoseOptimization: return "pose_optimization";
     case TimingComponent::EndToEndFrame: return "end_to_end_frame";
     default: return "unknown";
     }
@@ -39,6 +45,10 @@ void ExperimentTiming::Reset(std::size_t frameCount, std::size_t warmupFrames)
     TimingRow empty;
     empty.fill(0.0);
     gFrameTimings.assign(frameCount, empty);
+    CountRow emptyCounts;
+    emptyCounts.fill(0);
+    gFrameCalls.assign(frameCount, emptyCounts);
+    gFrameEvents.assign(frameCount, emptyCounts);
     gCurrentFrame = 0;
     gWarmupFrames = warmupFrames;
 }
@@ -51,10 +61,19 @@ void ExperimentTiming::SetCurrentFrame(std::size_t frameIndex)
 
 void ExperimentTiming::Add(TimingComponent component, double seconds)
 {
+    AddAggregate(component, seconds, 0, 0);
+}
+
+void ExperimentTiming::AddAggregate(TimingComponent component, double seconds,
+                                    std::size_t calls, std::size_t events)
+{
     std::lock_guard<std::mutex> lock(gTimingMutex);
     if(gCurrentFrame >= gFrameTimings.size())
         return;
-    gFrameTimings[gCurrentFrame][static_cast<std::size_t>(component)] += seconds;
+    const std::size_t index = static_cast<std::size_t>(component);
+    gFrameTimings[gCurrentFrame][index] += seconds;
+    gFrameCalls[gCurrentFrame][index] += calls;
+    gFrameEvents[gCurrentFrame][index] += events;
 }
 
 bool ExperimentTiming::WriteReports(const std::string &outputDirectory)
@@ -67,14 +86,19 @@ bool ExperimentTiming::WriteReports(const std::string &outputDirectory)
     perFrame << "frame_index,in_steady_state";
     for(std::size_t component = 0;
         component < static_cast<std::size_t>(TimingComponent::Count); ++component)
-        perFrame << ',' << ComponentName(static_cast<TimingComponent>(component)) << "_seconds";
+    {
+        const char *name = ComponentName(static_cast<TimingComponent>(component));
+        perFrame << ',' << name << "_seconds," << name << "_calls," << name << "_events";
+    }
     perFrame << '\n' << std::setprecision(12);
     for(std::size_t frame = 0; frame < gFrameTimings.size(); ++frame)
     {
         perFrame << frame << ',' << (frame >= gWarmupFrames ? 1 : 0);
         for(std::size_t component = 0;
             component < static_cast<std::size_t>(TimingComponent::Count); ++component)
-            perFrame << ',' << gFrameTimings[frame][component];
+            perFrame << ',' << gFrameTimings[frame][component]
+                     << ',' << gFrameCalls[frame][component]
+                     << ',' << gFrameEvents[frame][component];
         perFrame << '\n';
     }
 

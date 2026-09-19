@@ -26,6 +26,7 @@
 #include <cmath>
 #include <cstdlib>
 #include <fstream>
+#include <unordered_map>
 #include<mutex>
 
 namespace ORB_SLAM2
@@ -33,6 +34,7 @@ namespace ORB_SLAM2
 
 namespace
 {
+std::unordered_map<long unsigned int, MapPoint*> gMapPointsById;
 void LogSemanticDynamicEvidence(const long unsigned int frameId,
                                 const long unsigned int mapPointId,
                                 const int classId,
@@ -70,6 +72,15 @@ void LogSemanticDynamicEvidence(const long unsigned int frameId,
 
 long unsigned int MapPoint::nNextId=0;
 mutex MapPoint::mGlobalMutex;
+mutex MapPoint::mBeliefRegistryMutex;
+
+MapPointDynamicBelief::MapPointDynamicBelief()
+    : dynamic_probability(0.5f), uncertainty(0.5f), conflict(0.0f),
+      previous_observation(0), has_previous_observation(false),
+      conflict_persistence(0.0f),
+      last_observation_frame(0), last_dynamic_frame(0), observation_count(0)
+{
+}
 
 /**
  * @brief Construct a new Map Point:: Map Point object
@@ -108,6 +119,8 @@ MapPoint::MapPoint(const cv::Mat &Pos,  //地图点的世界坐标
     // MapPoints can be created from Tracking and Local Mapping. This mutex avoid conflicts with id.
     unique_lock<mutex> lock(mpMap->mMutexPointCreation);
     mnId=nNextId++;
+    unique_lock<mutex> registryLock(mBeliefRegistryMutex);
+    gMapPointsById[mnId] = this;
 }
 
 /*
@@ -152,6 +165,84 @@ MapPoint::MapPoint(const cv::Mat &Pos, Map* pMap, Frame* pFrame, const int &idxF
     // TODO 不太懂,怎么个冲突法? 
     unique_lock<mutex> lock(mpMap->mMutexPointCreation);
     mnId=nNextId++;
+    unique_lock<mutex> registryLock(mBeliefRegistryMutex);
+    gMapPointsById[mnId] = this;
+}
+
+MapPoint::~MapPoint()
+{
+    unique_lock<mutex> lock(mBeliefRegistryMutex);
+    const auto found = gMapPointsById.find(mnId);
+    if(found != gMapPointsById.end() && found->second == this)
+        gMapPointsById.erase(found);
+}
+
+MapPoint *MapPoint::GetById(const long unsigned int id)
+{
+    unique_lock<mutex> lock(mBeliefRegistryMutex);
+    const auto found = gMapPointsById.find(id);
+    return found == gMapPointsById.end() ? NULL : found->second;
+}
+
+MapPointDynamicBelief MapPoint::GetDynamicBelief()
+{
+    unique_lock<mutex> lock(mMutexDynamicBelief);
+    return mDynamicBelief;
+}
+
+void MapPoint::SetDynamicBelief(const MapPointDynamicBelief &belief)
+{
+    unique_lock<mutex> lock(mMutexDynamicBelief);
+    mDynamicBelief = belief;
+}
+
+void MapPoint::MergeDynamicBeliefFrom(MapPoint *pMP)
+{
+    if(!pMP || pMP == this)
+        return;
+    MapPoint *first = this < pMP ? this : pMP;
+    MapPoint *second = this < pMP ? pMP : this;
+    unique_lock<mutex> lockFirst(first->mMutexDynamicBelief);
+    unique_lock<mutex> lockSecond(second->mMutexDynamicBelief);
+    const std::uint32_t ownCount = mDynamicBelief.observation_count;
+    const std::uint32_t otherCount = pMP->mDynamicBelief.observation_count;
+    const std::uint64_t total = static_cast<std::uint64_t>(ownCount) + otherCount;
+    const bool useOtherObservation =
+        pMP->mDynamicBelief.has_previous_observation
+        && (!mDynamicBelief.has_previous_observation
+            || pMP->mDynamicBelief.last_observation_frame
+               > mDynamicBelief.last_observation_frame);
+    if(total > 0)
+    {
+        mDynamicBelief.dynamic_probability =
+            (mDynamicBelief.dynamic_probability * ownCount
+             + pMP->mDynamicBelief.dynamic_probability * otherCount) / total;
+        mDynamicBelief.uncertainty =
+            (mDynamicBelief.uncertainty * ownCount
+             + pMP->mDynamicBelief.uncertainty * otherCount) / total;
+        mDynamicBelief.conflict =
+            (mDynamicBelief.conflict * ownCount
+             + pMP->mDynamicBelief.conflict * otherCount) / total;
+        // Prototype merge semantics: h is observation-count weighted. It is
+        // deliberately not treated as independent evidential mass.
+        mDynamicBelief.conflict_persistence =
+            (mDynamicBelief.conflict_persistence * ownCount
+             + pMP->mDynamicBelief.conflict_persistence * otherCount) / total;
+        mDynamicBelief.observation_count = total > UINT32_MAX ? UINT32_MAX
+                                                              : static_cast<std::uint32_t>(total);
+    }
+    if(useOtherObservation)
+    {
+        mDynamicBelief.previous_observation =
+            pMP->mDynamicBelief.previous_observation;
+        mDynamicBelief.has_previous_observation = true;
+    }
+    mDynamicBelief.last_observation_frame = std::max(
+        mDynamicBelief.last_observation_frame,
+        pMP->mDynamicBelief.last_observation_frame);
+    mDynamicBelief.last_dynamic_frame = std::max(
+        mDynamicBelief.last_dynamic_frame,
+        pMP->mDynamicBelief.last_dynamic_frame);
 }
 
 //设置地图点在世界坐标系下的坐标
@@ -266,6 +357,8 @@ void MapPoint::SetBadFlag()
         unique_lock<mutex> lock1(mMutexFeatures);
         unique_lock<mutex> lock2(mMutexPos);
         mbBad=true;
+        unique_lock<mutex> registryLock(mBeliefRegistryMutex);
+        gMapPointsById.erase(mnId);
         // 把mObservations转存到obs，obs和mObservations里存的是指针，赋值过程为浅拷贝
         obs = mObservations;
         // 把mObservations指向的内存释放，obs作为局部变量之后自动删除
@@ -299,6 +392,9 @@ void MapPoint::Replace(MapPoint* pMP)
     if(pMP->mnId==this->mnId)
         return;
 
+    // Preserve both identities' accumulated evidence before retiring this ID.
+    pMP->MergeDynamicBeliefFrom(this);
+
     //要替换当前地图点,有两个工作:
     // 1. 将当前地图点的观测数据等其他数据都"叠加"到新的地图点上
     // 2. 将观测到当前地图点的关键帧的信息进行更新
@@ -320,6 +416,8 @@ void MapPoint::Replace(MapPoint* pMP)
         nfound = mnFound;
         //指明当前地图点已经被指定的地图点替换了
         mpReplaced = pMP;
+        unique_lock<mutex> registryLock(mBeliefRegistryMutex);
+        gMapPointsById.erase(mnId);
     }
 
     // 所有能观测到原地图点的关键帧都要复制到替换的地图点上
@@ -423,6 +521,11 @@ float MapPoint::UpdateSemanticDynamicScore(const bool &bDynamicHit,
     if(mbBad)
         return mfSemanticDynamicScore;
 
+    if(SemanticConfig::UseSingleEvidenceUpdatePerFrame()
+       && mbSemanticDynamicHasUpdate
+       && mnSemanticDynamicLastFrame == frameId)
+        return mfSemanticDynamicScore;
+
     if(mnSemanticDynamicLastFrame == 0)
         mnSemanticDynamicLastFrame = frameId;
 
@@ -441,7 +544,16 @@ float MapPoint::UpdateSemanticDynamicScore(const bool &bDynamicHit,
         mfSemanticDynamicScore = 0.0f;
 
     mnSemanticDynamicLastFrame = frameId;
-    const bool suppressed = mfSemanticDynamicScore >= SemanticConfig::DynamicScoreThresholdForClass(classId);
+    mbSemanticDynamicHasUpdate = true;
+    const float dynamicThreshold = SemanticConfig::DynamicScoreThresholdForClass(classId);
+    const float uncertainThreshold = SemanticConfig::UncertainScoreThresholdForClass(classId);
+    if(mfSemanticDynamicScore >= dynamicThreshold)
+        mTemporalReliabilityState = TemporalReliabilityState::DYNAMIC;
+    else if(mfSemanticDynamicScore >= uncertainThreshold)
+        mTemporalReliabilityState = TemporalReliabilityState::UNCERTAIN;
+    else
+        mTemporalReliabilityState = TemporalReliabilityState::STATIC;
+    const bool suppressed = mTemporalReliabilityState == TemporalReliabilityState::DYNAMIC;
     LogSemanticDynamicEvidence(frameId, mnId, classId, bDynamicHit,
                                mfSemanticDynamicScore, suppressed);
     return mfSemanticDynamicScore;
@@ -460,6 +572,21 @@ bool MapPoint::ShouldSuppressSemanticDynamic(const int &classId)
 
     unique_lock<mutex> lock(mMutexFeatures);
     return mfSemanticDynamicScore >= SemanticConfig::DynamicScoreThresholdForClass(classId);
+}
+
+MapPoint::TemporalReliabilityState MapPoint::GetTemporalReliabilityState()
+{
+    unique_lock<mutex> lock(mMutexFeatures);
+    return mTemporalReliabilityState;
+}
+
+float MapPoint::GetTemporalReliabilityWeight()
+{
+    unique_lock<mutex> lock(mMutexFeatures);
+    if(SemanticConfig::UseTemporalSoftWeighting()
+       && mTemporalReliabilityState == TemporalReliabilityState::UNCERTAIN)
+        return SemanticConfig::UncertainWeight();
+    return 1.0f;
 }
 
 /**

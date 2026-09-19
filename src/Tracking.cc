@@ -44,11 +44,16 @@
 #include "Initializer.h"
 #include<unistd.h>
 #include "Optimizer.h"
+#include <fstream>
+#include <iomanip>
 #include "PnPsolver.h"
 #include "SemanticConfig.h"
+#include "FrameTemporalBaseline.h"
+#include "FrameTemporalConfig.h"
 
 #include <iostream>
 #include <cmath>
+#include <mutex>
 #include <fstream>
 #include <mutex>
 
@@ -85,6 +90,12 @@ namespace ORB_SLAM2
 
 namespace
 {
+const std::string MemoryCarrierMode()
+{
+    const char *value = std::getenv("ORB_SLAM2_MEMORY_CARRIER");
+    return value ? std::string(value) : std::string();
+}
+
 inline bool IsObjectMapCandidate(const int classId)
 {
     return SemanticConfig::IsStaticObjectClass(classId);
@@ -587,6 +598,29 @@ cv::Mat Tracking::GrabImageMonocular(const cv::Mat &im,const double &timestamp)/
  */
 void Tracking::Track()
 {
+    mAblationInitialCorrespondences = 0;
+    mAblationFinalInliers = 0;
+    mAblationValidMapPoints = 0;
+    mAblationOptimizationAcceptance = false;
+    mAblationMeanReliability = 1.0f;
+    mAblationMeanUncertainty = 0.0f;
+    static std::once_flag beliefConfigurationLogOnce;
+    std::call_once(beliefConfigurationLogOnce, [] {
+        cout << "[BeliefConfiguration] ACTIVE_MODE="
+             << (ENABLE_OBJECT_DYNAMIC_ACTIVE_MODE
+                 && SemanticConfig::ActiveModeEnabled() ? 1 : 0)
+             << " BELIEF_ENABLED=" << (SemanticConfig::BeliefEnabled() ? 1 : 0)
+             << " RELIABILITY_ENABLED=" << (SemanticConfig::ReliabilityEnabled() ? 1 : 0)
+             << " LEGACY_TEMPORAL_WEIGHT_ENABLED="
+             << (SemanticConfig::UseLegacyTemporalWeight() ? 1 : 0)
+             << " LEGACY_TEMPORAL_HARD_REJECTION_ENABLED="
+             << (SemanticConfig::UseLegacyTemporalHardRejection() ? 1 : 0)
+             << " CONFLICT_AWARE_UNCERTAINTY_ENABLED="
+             << (SemanticConfig::ConflictAwareUncertaintyEnabled() ? 1 : 0)
+             << " UNCERTAINTY_MODE=" << SemanticConfig::UncertaintyModeName()
+             << " MEASUREMENT_POLICY=" << SemanticConfig::MeasurementPolicyName()
+             << endl;
+    });
     // vector<double> a ={1.0,2,3};//*****jy_test:number at here will add with the frames goes
     // myQ.push(a);
     // cout << "test_tracking.size(): " << myQ.size() << endl;
@@ -626,7 +660,10 @@ void Tracking::Track()
 
         //这个状态量在上面的初始化函数中被更新
         if(mState!=OK)
+        {
+            LogUncertaintyAblationFrame();
             return;
+        }
     }
     else//**只存在ＯＫ、ＬＯＳＴ两种可能了，ＯＫ则进行ＳＬＡＭ，ＬＯＳＴ则重定位
     {
@@ -911,7 +948,8 @@ void Tracking::Track()
                  << " dynamic=" << mObjectDynamicStableMapView.dynamic_objects.size()
                  << endl;
 #if ENABLE_OBJECT_DYNAMIC_ACTIVE_MODE
-            if(mObjectDynamicStableMapView.snapshot_accepted)
+            if(SemanticConfig::ActiveModeEnabled()
+               && mObjectDynamicStableMapView.snapshot_accepted)
             {
                 ScopedExperimentTimer timing(TimingComponent::DynamicMapFilter);
                 mDynamicMapFilter.UpdateMapView(mObjectDynamicStableMapView);
@@ -949,6 +987,7 @@ void Tracking::Track()
             if(mpMap->KeyFramesInMap()<=5)
             {
                 cout << "Track lost soon after initialisation, reseting..." << endl;
+                LogUncertaintyAblationFrame();
                 mpSystem->Reset();
                 return;
             }
@@ -983,6 +1022,8 @@ void Tracking::Track()
         mlFrameTimes.push_back(mlFrameTimes.back());
         mlbLost.push_back(mState==LOST);
     }
+
+    LogUncertaintyAblationFrame();
 
 }// Tracking 
 
@@ -1688,7 +1729,11 @@ bool Tracking::TrackLocalMap()
     // Optimize Pose
     // 在这个函数之前，在 Relocalization、TrackReferenceKeyFrame、TrackWithMotionModel 中都有位姿优化，
     // Step 3：更新局部所有MapPoints后对位姿再次优化
-    Optimizer::PoseOptimization(&mCurrentFrame);
+    mAblationInitialCorrespondences = 0;
+    for(int i=0; i<mCurrentFrame.N; ++i)
+        if(mCurrentFrame.mvpMapPoints[i])
+            ++mAblationInitialCorrespondences;
+    mAblationFinalInliers = Optimizer::PoseOptimization(&mCurrentFrame);
     CullSemanticDynamicMapPoints();
     if(SemanticConfig::UseObjectSemanticMap())
         UpdateSemanticObjectMap();
@@ -1725,18 +1770,48 @@ bool Tracking::TrackLocalMap()
         }
     }
 
+    mAblationValidMapPoints = mnMatchesInliers;
+
     // Decide if the tracking was succesful
     // More restrictive if there was a relocalization recently
     // Step 5：根据跟踪匹配数目及回环情况决定是否跟踪成功
     // 如果最近刚刚发生了重定位,那么至少成功匹配50个点才认为是成功跟踪
     if(mCurrentFrame.mnId<mnLastRelocFrameId+mMaxFrames && mnMatchesInliers<50)
+    {
+        mAblationOptimizationAcceptance = false;
         return false;
+    }
 
     //如果是正常的状态话只要跟踪的地图点大于30个就认为成功了
-    if(mnMatchesInliers<30)
-        return false;
-    else
-        return true;
+    mAblationOptimizationAcceptance = mnMatchesInliers >= 30;
+    return mAblationOptimizationAcceptance;
+}
+
+void Tracking::LogUncertaintyAblationFrame() const
+{
+    const char *path = std::getenv("ORB_SLAM2_ABLATION_FRAME_LOG");
+    if(path == NULL || *path == '\0')
+        return;
+
+    std::ofstream stream(path, std::ios::out | std::ios::app);
+    if(!stream)
+        return;
+    if(stream.tellp() == std::streampos(0))
+        stream << "timestamp,tracking_success,pose_validity,"
+                  "initial_correspondences,final_inliers,valid_mappoints,"
+                  "optimization_acceptance,mean_reliability,mean_uncertainty\n";
+
+    const bool pose_valid = !mCurrentFrame.mTcw.empty()
+                         && cv::checkRange(mCurrentFrame.mTcw);
+    stream << std::setprecision(17) << mCurrentFrame.mTimeStamp << ','
+           << (mState == OK ? 1 : 0) << ','
+           << (pose_valid ? 1 : 0) << ','
+           << mAblationInitialCorrespondences << ','
+           << mAblationFinalInliers << ','
+           << mAblationValidMapPoints << ','
+           << (mAblationOptimizationAcceptance ? 1 : 0) << ','
+           << mAblationMeanReliability << ','
+           << mAblationMeanUncertainty << '\n';
 }
 
 #if ENABLE_OBJECT_DYNAMIC_ACTIVE_MODE
@@ -1755,35 +1830,74 @@ std::size_t Tracking::CountCurrentFrameMapPoints() const
 
 std::size_t Tracking::FilterCurrentFrameDynamicMapPoints()
 {
+    if(!SemanticConfig::ActiveModeEnabled())
+        return 0;
     ScopedExperimentTimer timing(TimingComponent::DynamicMapFilter);
     std::size_t filtered = 0;
-    for(std::vector<MapPoint*>::iterator current =
-            mCurrentFrame.mvpMapPoints.begin();
-        current != mCurrentFrame.mvpMapPoints.end(); ++current)
+    mCurrentFrame.mvMeasurementReliability.assign(
+        mCurrentFrame.mvpMapPoints.size(), 1.0f);
+    double reliabilitySum = 0.0;
+    double uncertaintySum = 0.0;
+    std::size_t beliefMeasurementCount = 0;
+    for(std::size_t index = 0;
+        index < mCurrentFrame.mvpMapPoints.size(); ++index)
     {
-        MapPoint *mapPoint = *current;
-        if(mapPoint && mDynamicMapFilter.IsDynamicMapPoint(
-               static_cast<Paper2::ObjectState::MapPointId>(mapPoint->mnId)))
+        MapPoint *mapPoint = mCurrentFrame.mvpMapPoints[index];
+        if(!mapPoint)
+            continue;
+
+        const Paper2::ObjectState::MapPointId mapPointId =
+            static_cast<Paper2::ObjectState::MapPointId>(mapPoint->mnId);
+        const bool frameCarrier = MemoryCarrierMode() == "frame";
+        const bool reject = frameCarrier && index < mCurrentFrame.mvKeysUn.size()
+            ? FrameTemporalBaseline::Instance().IsDynamicAt(
+                  mCurrentFrame, mCurrentFrame.mvKeysUn[index].pt.x,
+                  mCurrentFrame.mvKeysUn[index].pt.y)
+            : mDynamicMapFilter.IsHighConfidenceDynamicMapPoint(mapPointId);
+        if(reject)
         {
             // Remove only the current Frame association. The MapPoint, Map,
             // KeyFrame observations, and paper1 evidence remain untouched.
-            *current = static_cast<MapPoint*>(NULL);
+            mCurrentFrame.mvpMapPoints[index] = static_cast<MapPoint*>(NULL);
             ++filtered;
         }
+        else
+        {
+            // Paper2 extension:
+            // Belief-aware measurement reliability remains frame-local.
+            mCurrentFrame.mvMeasurementReliability[index] =
+                mDynamicMapFilter.GetMeasurementReliability(mapPointId);
+            if(mDynamicMapFilter.HasMapPoint(mapPointId))
+            {
+                reliabilitySum += mCurrentFrame.mvMeasurementReliability[index];
+                uncertaintySum += mDynamicMapFilter.GetUncertainty(mapPointId);
+                ++beliefMeasurementCount;
+            }
+        }
     }
+    mAblationMeanReliability = beliefMeasurementCount
+        ? static_cast<float>(reliabilitySum / beliefMeasurementCount) : 1.0f;
+    mAblationMeanUncertainty = beliefMeasurementCount
+        ? static_cast<float>(uncertaintySum / beliefMeasurementCount) : 0.0f;
     return filtered;
 }
 
 std::size_t Tracking::FilterLocalDynamicMapPoints()
 {
+    if(!SemanticConfig::ActiveModeEnabled())
+        return 0;
     ScopedExperimentTimer timing(TimingComponent::DynamicMapFilter);
     std::size_t filtered = 0;
+    // Image-plane memory has no identity in the local 3-D map. It is applied
+    // after projection, when a current-frame image coordinate exists.
+    if(MemoryCarrierMode() == "frame")
+        return filtered;
     std::vector<MapPoint*>::iterator output = mvpLocalMapPoints.begin();
     for(std::vector<MapPoint*>::iterator current = mvpLocalMapPoints.begin();
         current != mvpLocalMapPoints.end(); ++current)
     {
         MapPoint *mapPoint = *current;
-        if(mapPoint && mDynamicMapFilter.IsDynamicMapPoint(
+        if(mapPoint && mDynamicMapFilter.IsHighConfidenceDynamicMapPoint(
                static_cast<Paper2::ObjectState::MapPointId>(mapPoint->mnId)))
         {
             ++filtered;
@@ -1812,6 +1926,7 @@ void Tracking::CullSemanticDynamicMapPoints()
     int nDynamicMapPoints = 0;
     int nDynamicObjects = 0;
     int nStaticObjects = 0;
+    std::vector<std::pair<unsigned long, bool> > rawObservationStates;
 
     for(const std::shared_ptr<Object> &pObj : mCurrentFrame.objects_cur_)
     {
@@ -1839,11 +1954,29 @@ void Tracking::CullSemanticDynamicMapPoints()
                                  : -1;
         if(bInDynamicBox)
             ++nDynamicMapPoints;
+        rawObservationStates.push_back(std::make_pair(pMP->mnId, bInDynamicBox));
 
-        if(bInDynamicBox)
+        const std::string carrier = MemoryCarrierMode();
+        if(bInDynamicBox && !SemanticConfig::UseFrameTemporalBaseline()
+           && carrier.empty())
             pMP->UpdateSemanticDynamicScore(true, mCurrentFrame.mnId, dynamicClassId);
 
-        if(pMP->ShouldSuppressSemanticDynamic(dynamicClassId))
+        bool suppress = carrier == "frame"
+                      ? FrameTemporalBaseline::Instance().IsDynamicAt(
+                            mCurrentFrame, kp.pt.x, kp.pt.y)
+                      : ((carrier == "object" || carrier == "mappoint")
+                         ? mDynamicMapFilter.IsHighConfidenceDynamicMapPoint(
+                               static_cast<Paper2::ObjectState::MapPointId>(pMP->mnId))
+                         : pMP->ShouldSuppressSemanticDynamic(dynamicClassId));
+        if(SemanticConfig::UseLegacyTemporalHardRejection()
+           && carrier.empty() && !SemanticConfig::UseFrameTemporalBaseline()
+           && SemanticConfig::ReliabilityMode() == SemanticConfig::A_HARD_STATE)
+            suppress = pMP->GetSemanticDynamicScore()
+                    >= SemanticConfig::UncertainScoreThresholdForClass(dynamicClassId);
+        if(!SemanticConfig::UseLegacyTemporalHardRejection()
+           && carrier.empty())
+            suppress = false;
+        if(suppress)
         {
             mCurrentFrame.mvbOutlier[i] = true;
             mCurrentFrame.mvpMapPoints[i] = static_cast<MapPoint*>(NULL);
@@ -1853,6 +1986,7 @@ void Tracking::CullSemanticDynamicMapPoints()
 
     SemanticFrameStatistics stats;
     stats.frameId = mCurrentFrame.mnId;
+    stats.totalKeypoints = mCurrentFrame.N;
     stats.dynamicKeypoints = nDynamicKeypoints;
     stats.dynamicMapPoints = nDynamicMapPoints;
     stats.suppressedMapPoints = nSuppressedMapPoints;
@@ -1861,10 +1995,24 @@ void Tracking::CullSemanticDynamicMapPoints()
     stats.totalObjects = static_cast<int>(mCurrentFrame.objects_cur_.size());
     mvSemanticFrameStatistics.push_back(stats);
 
+    const char* observationLog = std::getenv("ORB_SLAM2_OBSERVATION_STATE_LOG");
+    if(observationLog && observationLog[0] != '\0')
+    {
+        std::ifstream existing(observationLog);
+        const bool needsHeader = !existing.good() || existing.peek() == std::ifstream::traits_type::eof();
+        existing.close();
+        std::ofstream output(observationLog, std::ios::app);
+        if(needsHeader)
+            output << "frame_id,map_point_id,raw_dynamic\n";
+        for(const auto &entry : rawObservationStates)
+            output << mCurrentFrame.mnId << "," << entry.first << "," << (entry.second ? 1 : 0) << "\n";
+    }
+
     cout << "[SemanticDynamic] frame=" << mCurrentFrame.mnId
          << " dynamic_kps=" << nDynamicKeypoints
          << " dynamic_map_points=" << nDynamicMapPoints
          << " suppressed_mps=" << nSuppressedMapPoints
+         << " dynamic_rejected=" << nSuppressedMapPoints
          << " dynamic_objects=" << nDynamicObjects
          << " static_objects=" << nStaticObjects
          << endl;
@@ -1931,10 +2079,11 @@ void Tracking::SaveSemanticDynamicStatistics(const string &filename)
         return;
     }
 
-    f << "frame_id dynamic_keypoints dynamic_map_points suppressed_map_points dynamic_objects static_objects total_objects" << endl;
+    f << "frame_id total_keypoints dynamic_keypoints dynamic_map_points suppressed_map_points dynamic_objects static_objects total_objects" << endl;
     for(const SemanticFrameStatistics &stats : mvSemanticFrameStatistics)
     {
         f << stats.frameId << " "
+          << stats.totalKeypoints << " "
           << stats.dynamicKeypoints << " "
           << stats.dynamicMapPoints << " "
           << stats.suppressedMapPoints << " "
@@ -2584,11 +2733,22 @@ bool Tracking::Relocalization()
     // 是否已经找到相匹配的关键帧的标志
     bool bMatch = false;
     ORBmatcher matcher2(0.9,true);
+    int relocalizationRounds = 0;
 
     // Step 4: 通过一系列操作,直到找到能够匹配上的关键帧
     // 为什么搞这么复杂？答：是担心误闭环
     while(nCandidates>0 && !bMatch)
     {
+        // Each solver is configured for at most 300 RANSAC iterations and is
+        // advanced by five iterations per round. This guard only handles a
+        // no-progress solver state; it does not change successful solutions.
+        if(++relocalizationRounds > 100)
+        {
+            std::cerr << "[RelocalizationGuard] frame=" << mCurrentFrame.mnId
+                      << " candidates=" << nCandidates
+                      << " rounds=" << relocalizationRounds << std::endl;
+            break;
+        }
         //遍历当前所有的候选关键帧
         for(int i=0; i<nKFs; i++)
         {

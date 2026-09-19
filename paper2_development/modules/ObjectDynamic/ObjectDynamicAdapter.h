@@ -29,12 +29,21 @@ namespace Paper2
 
 struct StableMapView
 {
+    struct CarrierObservation
+    {
+        ObjectState::ObjectId object_id;
+        int class_id;
+        std::vector<ObjectState::MapPointId> map_point_ids;
+    };
     std::uint64_t frame_id;
     double timestamp;
     bool snapshot_accepted;
     std::vector<ObjectState> active_objects;
     std::vector<ObjectState> dynamic_objects;
     std::vector<ObjectState> recovered_objects;
+    // Associations observed in this frame only. Unlike ObjectState's map,
+    // this list is not cumulative across the object's lifetime.
+    std::vector<CarrierObservation> carrier_observations;
 
     StableMapView();
 };
@@ -70,6 +79,7 @@ private:
     bool has_last_frame_;
     std::uint64_t last_frame_id_;
     double last_timestamp_;
+    std::vector<StableMapView::CarrierObservation> last_carrier_observations_;
 };
 
 } // namespace Paper2

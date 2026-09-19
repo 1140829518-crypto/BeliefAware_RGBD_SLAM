@@ -46,6 +46,8 @@
 #include<string>
 
 #include "Frame.h"
+#include "FrameTemporalBaseline.h"
+#include "FrameTemporalConfig.h"
 
 using namespace std;
 
@@ -54,6 +56,57 @@ namespace ORB_SLAM2
 
 namespace
 {
+bool UsesStrictCarrierMemory()
+{
+    const char *carrier = std::getenv("ORB_SLAM2_MEMORY_CARRIER");
+    return carrier && (std::string(carrier) == "object"
+                    || std::string(carrier) == "mappoint");
+}
+
+void EvaluateTemporalDecision(const Frame &frame, MapPoint *mapPoint,
+                              const float u, const float v,
+                              const bool dynamicHit, const int classId,
+                              float &score, float &threshold)
+{
+    if(SemanticConfig::UseFrameTemporalBaseline())
+    {
+        score = FrameTemporalBaseline::Instance().ScoreAt(frame, u, v);
+        threshold = FrameTemporalConfig::kDynamicThreshold;
+        return;
+    }
+    // In the strict carrier ablation, suppression is owned exclusively by
+    // DynamicMapFilter. Do not mix in the legacy MapPoint score path.
+    if(UsesStrictCarrierMemory())
+    {
+        score = 0.0f;
+        threshold = 1.0f;
+        return;
+    }
+    score = mapPoint->UpdateSemanticDynamicScore(dynamicHit, frame.mnId, classId);
+    threshold = SemanticConfig::DynamicScoreThresholdForClass(classId);
+}
+
+bool RejectTemporalMapPoint(MapPoint *mapPoint, const float score,
+                            const float dynamicThreshold, const int classId)
+{
+    if(!SemanticConfig::UseLegacyTemporalHardRejection())
+        return false;
+    if(SemanticConfig::UseFrameTemporalBaseline())
+        return score >= dynamicThreshold;
+
+    switch(SemanticConfig::ReliabilityMode())
+    {
+    case SemanticConfig::A_HARD_STATE:
+        return score >= SemanticConfig::UncertainScoreThresholdForClass(classId);
+    case SemanticConfig::A_SOFT:
+        return mapPoint->GetTemporalReliabilityState()
+            == MapPoint::TemporalReliabilityState::DYNAMIC;
+    case SemanticConfig::P1_HARD:
+    default:
+        return score >= dynamicThreshold;
+    }
+}
+
 void LogMapPointProjectionEvidence(const Frame &frame,
                                    const MapPoint *mapPoint,
                                    const float u,
@@ -185,12 +238,16 @@ if(countPath && countPath[0])
         const int dynamicClassId = (bInDynamicBox && dynamic_box_id >= 0 && dynamic_box_id < static_cast<int>(F.objects_cur_.size()) && F.objects_cur_[dynamic_box_id])
                                  ? F.objects_cur_[dynamic_box_id]->ndetect_class
                                  : -1;
-        const float semanticDynamicScore = pMP->UpdateSemanticDynamicScore(bInDynamicBox, F.mnId, dynamicClassId);
-        const float semanticDynamicThreshold = SemanticConfig::DynamicScoreThresholdForClass(dynamicClassId);
+        float semanticDynamicScore = 0.0f;
+        float semanticDynamicThreshold = 0.0f;
+        EvaluateTemporalDecision(F, pMP, pMP->mTrackProjX, pMP->mTrackProjY,
+                                 bInDynamicBox, dynamicClassId,
+                                 semanticDynamicScore, semanticDynamicThreshold);
         LogMapPointProjectionEvidence(F, pMP, pMP->mTrackProjX, pMP->mTrackProjY,
                                       dynamicClassId, bInDynamicBox,
                                       semanticDynamicScore, semanticDynamicThreshold);
-        if(semanticDynamicScore >= semanticDynamicThreshold)
+        if(RejectTemporalMapPoint(pMP, semanticDynamicScore,
+                                  semanticDynamicThreshold, dynamicClassId))
             continue;
 
         // Step 3 通过投影点以及搜索窗口和预测的尺度进行搜索, 找出搜索半径内的候选匹配点索引
@@ -1868,12 +1925,16 @@ int ORBmatcher::SearchByProjection(Frame &CurrentFrame, const Frame &LastFrame, 
                 const int dynamicClassId = (bInDynamicBox && dynamic_box_id >= 0 && dynamic_box_id < static_cast<int>(CurrentFrame.objects_cur_.size()) && CurrentFrame.objects_cur_[dynamic_box_id])
                                          ? CurrentFrame.objects_cur_[dynamic_box_id]->ndetect_class
                                          : -1;
-                const float semanticDynamicScore = pMP->UpdateSemanticDynamicScore(bInDynamicBox, CurrentFrame.mnId, dynamicClassId);
-                const float semanticDynamicThreshold = SemanticConfig::DynamicScoreThresholdForClass(dynamicClassId);
+                float semanticDynamicScore = 0.0f;
+                float semanticDynamicThreshold = 0.0f;
+                EvaluateTemporalDecision(CurrentFrame, pMP, u, v,
+                                         bInDynamicBox, dynamicClassId,
+                                         semanticDynamicScore, semanticDynamicThreshold);
                 LogMapPointProjectionEvidence(CurrentFrame, pMP, u, v,
                                               dynamicClassId, bInDynamicBox,
                                               semanticDynamicScore, semanticDynamicThreshold);
-                if(semanticDynamicScore >= semanticDynamicThreshold)
+                if(RejectTemporalMapPoint(pMP, semanticDynamicScore,
+                                          semanticDynamicThreshold, dynamicClassId))
                     continue;
 
                 // 认为投影前后地图点的尺度信息不变
@@ -2062,12 +2123,16 @@ int ORBmatcher::SearchByProjection(Frame &CurrentFrame, KeyFrame *pKF, const set
                 const int dynamicClassId = (bInDynamicBox && dynamic_box_id >= 0 && dynamic_box_id < static_cast<int>(CurrentFrame.objects_cur_.size()) && CurrentFrame.objects_cur_[dynamic_box_id])
                                          ? CurrentFrame.objects_cur_[dynamic_box_id]->ndetect_class
                                          : -1;
-                const float semanticDynamicScore = pMP->UpdateSemanticDynamicScore(bInDynamicBox, CurrentFrame.mnId, dynamicClassId);
-                const float semanticDynamicThreshold = SemanticConfig::DynamicScoreThresholdForClass(dynamicClassId);
+                float semanticDynamicScore = 0.0f;
+                float semanticDynamicThreshold = 0.0f;
+                EvaluateTemporalDecision(CurrentFrame, pMP, u, v,
+                                         bInDynamicBox, dynamicClassId,
+                                         semanticDynamicScore, semanticDynamicThreshold);
                 LogMapPointProjectionEvidence(CurrentFrame, pMP, u, v,
                                               dynamicClassId, bInDynamicBox,
                                               semanticDynamicScore, semanticDynamicThreshold);
-                if(semanticDynamicScore >= semanticDynamicThreshold)
+                if(RejectTemporalMapPoint(pMP, semanticDynamicScore,
+                                          semanticDynamicThreshold, dynamicClassId))
                     continue;
 
                 // Compute predicted scale level

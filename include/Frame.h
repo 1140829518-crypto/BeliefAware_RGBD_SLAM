@@ -411,6 +411,10 @@ public:
     /// 每个特征点对应的MapPoint.如果特征点没有对应的地图点,那么将存储一个空指针
     std::vector<MapPoint*> mvpMapPoints;
 
+    // Paper2 extension:
+    // Belief-aware measurement reliability, aligned with mvpMapPoints.
+    std::vector<float> mvMeasurementReliability;
+
     // Flag to identify outlier associations.
     // 观测不到Map中的3D点
     /// 属于外点的特征点标记,在 Optimizer::PoseOptimization 使用了
